@@ -1,5 +1,4 @@
 """
-
 By Christian Meessen
 GFZ Potsdam
 christian.meessen@gfz-potsdam.de
@@ -11,6 +10,7 @@ import math
 import inspect
 import os
 import platform
+
 
 class MantleConversion:
     """
@@ -572,8 +572,8 @@ class MantleConversion:
     def LoadAlphaTables(self, FileIn='AlphaDB.csv'):
         """
         Load tables for alpha(P,T) that were previously extracted from the
-        worksheet from Hacker and Abers (2006). The Excel-macro that was used to
-        create the table is store in 'AlphaPT.bas'.
+        worksheet from Hacker and Abers (2006). The Excel-macro that was used
+        to create the table is store in 'AlphaPT.bas'.
 
         Parameters:
 
