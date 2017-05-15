@@ -1,4 +1,5 @@
-# Shear wave velocity distribution from Schaeffer and Lebedev (2013)
+# Example shear wave velocity distribution converted to UTM from Schaeffer and
+# Lebedev (2013).
 # Columns
 # 0 - X / m
 # 1 - Y / m

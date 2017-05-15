@@ -1,6 +1,63 @@
+# -*- coding: utf-8 -*-
 """
-By Christian Meessen
+This script is an implementation of the s/p-wave velocity to density conversion
+by Goes et al. (2000). The code was optimised to work with 3D-regular grids,
+which allows to use a lookup-table instead of a Newton-Iterator to solve for
+temperatures and densities.
+
+The code has an interface that grabs command line arguments. Help on the
+execution can be obtianed by running `python conversion.py` or `python
+conversion.py -h`.
+
+For testing purposes different ways to calculate the expansion coefficient
+alpha were introduced, see `MantleConversion.Alpha()`
+
+Examples on code execution are provided in ./Examples/.
+
+** References **
+
+Berckhemer, H., W. Kampfmann, E. Aulbach, and H. Schmeling. “Shear Modulus and
+Q of Forsterite and Dunite near Partial Melting from Forced-Oscillation
+Experiments.” Physics of the Earth and Planetary Interiors, Special Issue
+Properties of Materials at High Pressures and High Temperatures, 29, no. 1
+(July 1, 1982): 30–41. doi:10.1016/0031-9201(82)90135-2.
+
+Goes, S., R. Govers, and P. Vacher. “Shallow Mantle Temperatures under Europe
+from P and S Wave Tomography.” Journal of Geophysical Research 105, no. 11
+(2000): 153–11.
+
+Hacker, Bradley R., and Geoffrey A. Abers. “Subduction Factory 3: An Excel
+Worksheet and Macro for Calculating the Densities, Seismic Wave Speeds, and H2O
+Contents of Minerals and Rocks at Pressure and Temperature.” Geochemistry,
+Geophysics, Geosystems 5, no. 1 (January 1, 2004): Q01005.
+doi:10.1029/2003GC000614.
+
+Kennett, B. L. N., E. R. Engdahl, and R. Buland. “Constraints on Seismic
+Velocities in the Earth from Traveltimes.” Geophysical Journal International
+122, no. 1 (July 1, 1995): 108–24. doi:10.1111/j.1365-246X.1995.tb03540.x.
+
+Saxena, Surendra K., and Guoyin Shen. “Assessed Data on Heat Capacity, Thermal
+Expansion, and Compressibility for Some Oxides and Silicates.” Journal of
+Geophysical Research: Solid Earth 97, no. B13 (Dezember 1992): 19813–25.
+doi:10.1029/92JB01555.
+
+Schaeffer, A. J., and S. Lebedev. “Global Shear Speed Structure of the Upper
+Mantle and Transition Zone.” Geophysical Journal International 194, no. 1 (July
+1, 2013): 417–49. doi:10.1093/gji/ggt095.
+
+Sobolev, Stephan V., Hermann Zeyen, Gerald Stoll, Friederike Werling, Rainer
+Altherr, and Karl Fuchs. “Upper Mantle Temperatures from Teleseismic Tomography
+of French Massif Central Including Effects of Composition, Mineral Reactions,
+Anharmonicity, Anelasticity and Partial Melt.” Earth and Planetary Science
+Letters 139, no. 1–2 (März 1996): 147–63. doi:10.1016/0012-821X(95)00238-8.
+
+**Author contact**
+
+For questions or suggestions please contact
+Christian Meeßen
+Section 6.1 Basin Modelling
 GFZ Potsdam
+14473 Potsdam, Germany
 christian.meessen@gfz-potsdam.de
 """
 
@@ -14,7 +71,7 @@ import platform
 
 class MantleConversion:
     """
-    Class containing all information about the mantle rock
+    Class containing all information about the mantle rock.
     """
 
     def __init__(self):
@@ -40,11 +97,11 @@ class MantleConversion:
         self.VelType = None
 
         # Physical constants
-        self.g = 9.81
-        self.TKelvin = 273.15
-        self.T0 = 300.
-        self.P0 = 101300.
-        self.R = 8.31446
+        self.g = 9.81          # gravitational acceleration
+        self.TKelvin = 273.15  # offset temperature degC - Kelvin
+        self.T0 = 300.         # room temperature
+        self.P0 = 101300.      # atmospheric pressure in Pa
+        self.R = 8.31446       # universal gas constant
 
         # Rock properties
         self.Composition = None
@@ -53,7 +110,7 @@ class MantleConversion:
         # Initialise mineral database
         self.MinDB = self.LoadMineralProperties()
 
-        # AK135 Earth Model
+        # AK135 Earth Model (Kennet et al., 1995)
         self.AK135Model = np.array([[0, 1.02],
                                     [3., 1.02],
                                     [3., 2.],
@@ -75,11 +132,11 @@ class MantleConversion:
                                     [310., 3.4110]])
         self.MaxDepth = -1000*self.AK135Model[-1, 0]
 
-        # Settings for temperature tables
+        # Settings for temperature-density lookup tables
         # 3000 K top from Saxena and Shen (1992)
         self.Tmin = 300.
         self.Tmax = 3000.
-        self.dT = 1.
+        self.dT = 1.      # temperature increment
         self.nT = int((self.Tmax - self.Tmin)/self.dT + 1)
 
         # Attenuation properties
@@ -101,6 +158,10 @@ class MantleConversion:
 
         * depth : float
             Depth in m below sea level (positive!)
+
+        * simple : boolean
+            If `true`, return a lithostatic pressure based on an average
+            density of 3000 kg/m3
 
         Returns:
 
@@ -134,13 +195,20 @@ class MantleConversion:
     def Alpha(self, P, T, Mineral, p=4.0):
         """
         Returns alpha for a specific mineral depending on the initially defined
-        dependency. The variable self.UseAlpha determines the options: 1)
-        'Alpha' only returns alpha_0 from the tables, leaving it independent of
-        P and T. 'AlphaT' returns T-dependent values as proposed by Goes et al.
-        (2000). 'AlphaPT' Performs an inverse-distance weighed interpolation
-        between the four closest grid points of self.AlphaPT. The line-wise
-        structure of the AlphaTables is 'P T Min1 Min2 Min3 ..' where Min is a
-        specific mineral.
+        dependency. `self.UseAlpha` determines how the thermal conductivity is
+        being calculated:
+
+            * `self.UseAlpha = "Alpha"`
+                Neither P nor T dependent, returns alpha_0 from `MinDB.csv`.
+
+            * `self.UseAlpha = "AlphaT"`
+                T-dependent conductivity based on Eqn. 5 in Saxena and Shen
+                (1992)
+
+            * `self.UseAlpha = "AlphaPT"`
+                P- and T dependent conductivity which is caluclated by an
+                inverse-distance weighed interpolation between the four closest
+                grid points of `self.AlphaPT=AlphaDB.csv`.
 
         Parameters:
 
@@ -179,7 +247,7 @@ class MantleConversion:
                     + self.alpha[2, Mineral]/T + self.alpha[3, Mineral]/T/T
 
         elif self.UseAlpha == 'AlphaPT':
-            # Alpha P,T dependent, deduced from Hacker and Abers tables
+            # Alpha P,T dependent, deduced from Hacker and Abers (2004) tables
             # 1 - Get row indices from P and T tables
             try:
                 idxP = max(np.where(self.AlphaP <= P)[0])
@@ -301,10 +369,15 @@ class MantleConversion:
 
     def CalcPT(self):
         """
-        Estimate temperatures of input velocities.
-        Synthetic data is stored in self.SynPTVRho.
-        SynPTVRho dictionary structure:
-        { Depth : array[T, V, Rho]; ... }
+        Estimate temperatures of input velocities. Synthetic data is stored in
+        `self.SynPTVRho`. `SynPTVRho` dictionary structure:
+
+            [
+                { Depth_i   : np.array[T, V, Rho],
+                  Depth_i+1 : np.array[T, V, Rho],
+                  ...}
+            ]
+
         The observed velocity is compared with synthetic velocities and then
         linearly interpolated between the neares calculated temperatures.
 
@@ -353,6 +426,7 @@ class MantleConversion:
 
         * z : double
             Depth in km
+
         * T : numpy array
             Array containing temperature values
 
@@ -422,8 +496,8 @@ class MantleConversion:
         rho_minerals = np.empty([self.n_Phases, self.nT])
         rho_XFe = self.Rho0 + self.XFe*self.dRhodX
         for i in range(self.n_Phases):
-            rho_minerals[i, :] = (rho_XFe[i]*(1 - alpha_minerals[i, :]*(T
-                                  - self.T0) + (P - self.P0)/K_minerals[i, :]))
+            rho_minerals[i, :] = (rho_XFe[i]*(1 - alpha_minerals[i, :]*(T -
+                                  self.T0) + (P - self.P0)/K_minerals[i, :]))
 
         # Calculate rho rock
         if self.Verbose:
@@ -464,14 +538,14 @@ class MantleConversion:
     def FillTables(self):
         """
         Create arrays of V and T for the depths in FileIn. Also loads tables
-        for Alpha(P,T) if necessary.
-        The arrays are stored in the dictionary SynPTVRho.
-        Structure of SynPTVRho:
-        {Depth1 : [Temperature, Vsyn, RhoRock],
-         Depth2 : [Temperature, Vsyn, RhoRock],
-         ...}
+        for Alpha(P,T) if necessary. The arrays are stored in the dictionary
+        `self.SynPTVRho`:
 
-         Also creates functions for alpha(P,T)
+            [
+                { Depth_i   : np.array[T, V, Rho],
+                  Depth_i+1 : np.array[T, V, Rho],
+                  ...}
+            ]
         """
 
         if self.UseAlpha == 'AlphaPT':
@@ -571,9 +645,9 @@ class MantleConversion:
 
     def LoadAlphaTables(self, FileIn='AlphaDB.csv'):
         """
-        Load tables for alpha(P,T) that were previously extracted from the
-        worksheet from Hacker and Abers (2006). The Excel-macro that was used
-        to create the table is store in 'AlphaPT.bas'.
+        Load tables for P- and T-dependent thermal conductivity, alpha(P,T),
+        that were previously extracted from the worksheet by Hacker and Abers
+        (2004, see `./AlphaPT`).
 
         Parameters:
 
@@ -682,49 +756,55 @@ class MantleConversion:
 
         return RawData, n_phases
 
-    def LoadMineralProperties(self, FileIn=None):
+    def LoadMineralProperties(self, FileIn=None, delim=';'):
         """
-        Import Mineral properties from a database file.
-        Input file structure contains the following properties:
-        Full phase name - Self explanatory
-        phase  - Mineral phase
-        rho0   - Density at T0, P0 / kg/m3
-        dRhodX - Density change with XFe
-        K0     - Isothermal bulk modulus / Pa
-        dKdX   - Change of K0 with XFe / Pa
-        dKdP   - Pressure derivative of K0 / Pa/Pa
-        dKdPdX - Change of dKdP with XFe
-        dKdT   - Change of K0 with T / Pa/K
-        mu0    - Shear modulus / Pa
-        dmudX  - Change of mu0 with XFe
-        dmudP  - Pressure derivative of mu0 / Pa/Pa
-        dmudT  - Temperature derivative of mu0 / Pa/K
-        alpha0 - Parameterisation for alpha(T) from Saxena and Shen (1992)
-        alpha1 - Parameterisation for alpha(T) from Saxena and Shen (1992)
-        alpha2 - Parameterisation for alpha(T) from Saxena and Shen (1992)
-        alpha3 - Parameterisation for alpha(T) from Saxena and Shen (1992)
+        Import Mineral properties from database file. The input file must be a
+        delimited text file with the following columnar structure:
+
+        [
+            Full phase name - Self explanatory
+            phase  - Mineral phase
+            rho0   - Density at T0, P0 / kg/m3
+            dRhodX - Density change with XFe
+            K0     - Isothermal bulk modulus / Pa
+            dKdX   - Change of K0 with XFe / Pa
+            dKdP   - Pressure derivative of K0 / Pa/Pa
+            dKdPdX - Change of dKdP with XFe
+            dKdT   - Change of K0 with T / Pa/K
+            mu0    - Shear modulus / Pa
+            dmudX  - Change of mu0 with XFe
+            dmudP  - Pressure derivative of mu0 / Pa/Pa
+            dmudT  - Temperature derivative of mu0 / Pa/K
+            alpha0 - Parameterisation for alpha(T) from Saxena and Shen (1992)
+            alpha1 - Parameterisation for alpha(T) from Saxena and Shen (1992)
+            alpha2 - Parameterisation for alpha(T) from Saxena and Shen (1992)
+            alpha3 - Parameterisation for alpha(T) from Saxena and Shen (1992)
+        ]
 
         Parameters:
 
         * FileIn : String
-            Input file name
+            Input file name.
+
+        * delim : String
+            String delimiter.
 
         Returns:
 
         * DBase : Numpy Array
-            Structured numpy array containing database information
+            Structured numpy array containing database information.
         """
         if FileIn is None:
             FileIn = self.PyPath + self.FolderSep + 'MinDB.csv'
             if self.Verbose:
                 print "Importing mineral properties from", FileIn
-        DBase = np.genfromtxt(FileIn, names=True, dtype=None, delimiter=';')
+        DBase = np.genfromtxt(FileIn, names=True, dtype=None, delimiter=delim)
         return DBase
 
     def LoadFile(self):
         """
-        Load input file
-        Structure of input file _must_ be X Y Z Val
+        Load the input file given by `self.FileIn`. The structure of input file
+        must be `X Y Z Vel`.
         """
         print "Loading input file:", self.FileIn
         self.DataRaw = np.loadtxt(self.FileIn)
@@ -735,7 +815,8 @@ class MantleConversion:
 
     def ReadArgs(self):
         """
-        Read input arguments from console
+        Read input arguments from console and define an output filename if none
+        was specified.
         """
         if len(sys.argv) == 1:
             self.Usage()
@@ -786,7 +867,7 @@ class MantleConversion:
 
     def SaveFile(self):
         """
-        Save results to output file
+        Save results to an output file.
         """
         StrComment = "# "
         Output = np.empty([self.DataRaw.shape[0], 6])
@@ -827,26 +908,6 @@ class MantleConversion:
                    comments=StrComment)
         print '> Done!'
 
-    def SetComposition(self, ArgArr):
-        """
-        Defines composition of Mantle rock
-
-        Parameters:
-
-        * ArgArr : Numpy Array
-            Input array containing [Ol, Opx, Cpx, Sp, Gnt] information
-        """
-        FloatArr = []
-        for x in ArgArr:
-            FloatArr.append(float(x))
-        Ol, Opx, Cpx, Sp, Gnt = FloatArr
-        CompSum = Ol + Opx + Cpx + Sp + Gnt
-        if CompSum == 1.:
-            self.Composition = np.array([Ol, Opx, Cpx, Sp, Gnt])
-        else:
-            print 'Sum of composition is ', CompSum, 'and unequal to 1!'
-            sys.exit()
-
     def SetQMode(self, Mode):
         """
         Defines the QMode which is being used for attenuation calculation
@@ -874,7 +935,7 @@ class MantleConversion:
 
     def SetVelType(self, TypeString):
         """
-        Define velocity type
+        Define velocity type and frequency.
 
         Parameters:
 
@@ -892,7 +953,7 @@ class MantleConversion:
 
     def SetXFe(self, XFe=None):
         """
-        Define the iron content of the rock
+        Define the iron content of the rock.
         """
         if XFe is None:
             self.XFe = 0
