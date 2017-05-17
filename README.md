@@ -14,6 +14,14 @@ grids.
 - for every point in the velocity distribution compare the velocity with the
   synthetic values and obtain density and temperature
 
+To get started open a console and type
+
+```
+python Conversion.py --help
+```
+
+Examples for conversions are given in the `./Example/` directory.
+
 ## References
 
 Berckhemer, H., W. Kampfmann, E. Aulbach, and H. Schmeling. “Shear Modulus and
