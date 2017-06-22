@@ -4,8 +4,11 @@ This code is a python implementation of the p- and s-wave velocity to density
 conversion approach after Goes et al. (2000)
 
 To obtain help on the usage run
+    Conversion.py --help
 
-Conversion.py --help
+Recommended citation
+Meeßen, Christian (2017): VelocityConversion. V. v1.0.1. GFZ Data Services.
+http://doi.org/10.5880/GFZ.6.1.2017.001
 
 For questions or suggestions please contact
 Christian Meeßen
