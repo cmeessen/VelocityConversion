@@ -1,57 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-This script is an implementation of the s/p-wave velocity to density conversion
-by Goes et al. (2000). The code was optimised to work with 3D-regular grids,
-which allows to use a lookup-table instead of a Newton-Iterator to solve for
-temperatures and densities.
+This code is a python implementation of the p- and s-wave velocity to density
+conversion approach after Goes et al. (2000)
 
-The code has an interface that grabs command line arguments. Help on the
-execution can be obtianed by running `python conversion.py` or `python
-conversion.py -h`.
+To obtain help on the usage run
 
-For testing purposes different ways to calculate the expansion coefficient
-alpha were introduced, see `MantleConversion.Alpha()`
-
-Examples on code execution are provided in ./Examples/.
-
-** References **
-
-Berckhemer, H., W. Kampfmann, E. Aulbach, and H. Schmeling. “Shear Modulus and
-Q of Forsterite and Dunite near Partial Melting from Forced-Oscillation
-Experiments.” Physics of the Earth and Planetary Interiors, Special Issue
-Properties of Materials at High Pressures and High Temperatures, 29, no. 1
-(July 1, 1982): 30–41. doi:10.1016/0031-9201(82)90135-2.
-
-Goes, S., R. Govers, and P. Vacher. “Shallow Mantle Temperatures under Europe
-from P and S Wave Tomography.” Journal of Geophysical Research 105, no. 11
-(2000): 153–11.
-
-Hacker, Bradley R., and Geoffrey A. Abers. “Subduction Factory 3: An Excel
-Worksheet and Macro for Calculating the Densities, Seismic Wave Speeds, and H2O
-Contents of Minerals and Rocks at Pressure and Temperature.” Geochemistry,
-Geophysics, Geosystems 5, no. 1 (January 1, 2004): Q01005.
-doi:10.1029/2003GC000614.
-
-Kennett, B. L. N., E. R. Engdahl, and R. Buland. “Constraints on Seismic
-Velocities in the Earth from Traveltimes.” Geophysical Journal International
-122, no. 1 (July 1, 1995): 108–24. doi:10.1111/j.1365-246X.1995.tb03540.x.
-
-Saxena, Surendra K., and Guoyin Shen. “Assessed Data on Heat Capacity, Thermal
-Expansion, and Compressibility for Some Oxides and Silicates.” Journal of
-Geophysical Research: Solid Earth 97, no. B13 (Dezember 1992): 19813–25.
-doi:10.1029/92JB01555.
-
-Schaeffer, A. J., and S. Lebedev. “Global Shear Speed Structure of the Upper
-Mantle and Transition Zone.” Geophysical Journal International 194, no. 1 (July
-1, 2013): 417–49. doi:10.1093/gji/ggt095.
-
-Sobolev, Stephan V., Hermann Zeyen, Gerald Stoll, Friederike Werling, Rainer
-Altherr, and Karl Fuchs. “Upper Mantle Temperatures from Teleseismic Tomography
-of French Massif Central Including Effects of Composition, Mineral Reactions,
-Anharmonicity, Anelasticity and Partial Melt.” Earth and Planetary Science
-Letters 139, no. 1–2 (März 1996): 147–63. doi:10.1016/0012-821X(95)00238-8.
-
-**Author contact**
+Conversion.py --help
 
 For questions or suggestions please contact
 Christian Meeßen
@@ -71,7 +25,7 @@ import platform
 
 class MantleConversion:
     """
-    Class containing all information about the mantle rock.
+    The class that provides the code for the velocity conversion.
     """
 
     def __init__(self):
@@ -370,12 +324,13 @@ class MantleConversion:
     def CalcPT(self):
         """
         Estimate temperatures of input velocities. Synthetic data is stored in
-        `self.SynPTVRho`. `SynPTVRho` dictionary structure:
+        `self.SynPTVRho`. `SynPTVRho` dictionary structure::
 
             [
                 { Depth_i   : np.array[T, V, Rho],
                   Depth_i+1 : np.array[T, V, Rho],
-                  ...}
+                  ...
+                }
             ]
 
         The observed velocity is compared with synthetic velocities and then
@@ -539,7 +494,7 @@ class MantleConversion:
         """
         Create arrays of V and T for the depths in FileIn. Also loads tables
         for Alpha(P,T) if necessary. The arrays are stored in the dictionary
-        `self.SynPTVRho`:
+        `self.SynPTVRho`::
 
             [
                 { Depth_i   : np.array[T, V, Rho],
@@ -759,9 +714,8 @@ class MantleConversion:
     def LoadMineralProperties(self, FileIn=None, delim=';'):
         """
         Import Mineral properties from database file. The input file must be a
-        delimited text file with the following columnar structure:
+        delimited text file with the following columnar structure::
 
-        [
             Full phase name - Self explanatory
             phase  - Mineral phase
             rho0   - Density at T0, P0 / kg/m3
@@ -779,7 +733,6 @@ class MantleConversion:
             alpha1 - Parameterisation for alpha(T) from Saxena and Shen (1992)
             alpha2 - Parameterisation for alpha(T) from Saxena and Shen (1992)
             alpha3 - Parameterisation for alpha(T) from Saxena and Shen (1992)
-        ]
 
         Parameters:
 

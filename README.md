@@ -1,26 +1,55 @@
 # VelocityConversion
 
-Conversion of P and S wave velocities to temperature and density after the
-approach by Goes et al. (2000). The method is optimised to work with 3D regular
-grids.
+This code is a python implementation of the p- and s-wave velocity to density
+conversion approach after Goes et al. (2000). The implementation was optimised
+for regular 3D grids using lookup tables instead of Newton iterations.
 
-## How it works in general:
+Goes et al. (2000) regard the expansion coefficient as temperature dependent
+using the relation by Saxena and Shen (1992). In `Conversion.py`, the user can
+additionally choose between a constant expansion coefficient or a pressure- and
+temperature dependent coefficient that was derived from Hacker and Abers (2004).
 
-- define mantle rock composition
-- load velocity distribution
-- analyse number of depth values in the velocity distribution
-- calculate synthetic temperature and density for the given composition and
-  depths in a predefined temperature range, e.g. 300 to 3000 K
-- for every point in the velocity distribution compare the velocity with the
-  synthetic values and obtain density and temperature
+For detailed information on the physics behind the approach have a look at the
+original paper by Goes et al. (2000).
 
-To get started open a console and type
+## Recommended citation for VelocityConversion
+Meeßen, Christian (2017): VelocityConversion. V. v1.0.1. GFZ Data Services.
+http://doi.org/10.5880/GFZ.6.1.2017.001
+
+## Licence
+
+Licence: GNU General Public Licence, Version 3, 29 June 2007
+
+Copyright (2017): Christian Meeßen, Potsdam, Germany
+
+VelocityConversion is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version. VelocityConversion is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+License for more details. You should have received a cop y of the GNU General
+Public License along with this program. If not, see
+http://www.gnu.org/licenses/.
+
+## How to get started
+
+To get help on the usage type
 
 ```
 python Conversion.py --help
 ```
 
-Examples for conversions are given in the `./Example/` directory.
+The steps to prepare a conversion are
+
+- definition of mantle rock composition in a `*.csv` file using the mineral
+  terminology of `MinDB.csv`
+- provide a velocity distribution on a regular 3D grid where columns are `x y z
+  v`
+- run the `Conversion.py` specifying the velocity type with `-type P` or
+  `-type S`
+
+Working examples for conversions are given in the `./Example/` directory.
 
 ## References
 
@@ -32,7 +61,7 @@ Properties of Materials at High Pressures and High Temperatures, 29, no. 1
 
 Goes, S., R. Govers, and P. Vacher. “Shallow Mantle Temperatures under Europe
 from P and S Wave Tomography.” Journal of Geophysical Research 105, no. 11
-(2000): 153–11.
+(2000): 153–11. doi:10.1029/1999jb900300.
 
 Hacker, Bradley R., and Geoffrey A. Abers. “Subduction Factory 3: An Excel
 Worksheet and Macro for Calculating the Densities, Seismic Wave Speeds, and H2O
