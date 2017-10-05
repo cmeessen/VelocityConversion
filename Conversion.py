@@ -768,6 +768,14 @@ class MantleConversion:
         DelRows = np.where(np.abs(self.DataRaw[:, 2]) > np.abs(self.MaxDepth))
         self.DataRaw = np.delete(self.DataRaw, DelRows, axis=0)
         self.Depths = np.unique(self.DataRaw[:, 2])
+        Vmin = np.amin(self.DataRaw[:, 3])
+        if Vmin < 1000:
+            print
+            print "WARNING: Minimum velocity is " + str(Vmin) + "! Velocity " \
+                  "should be in m/s."
+            if raw_input("Do you want to continue? [N/y]") != "y":
+                sys.exit()
+
 
     def ReadArgs(self):
         """
