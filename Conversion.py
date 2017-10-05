@@ -52,6 +52,7 @@ class MantleConversion:
         self.NN = False
         self.UseAlpha = 'Alpha'
         self.VelType = None
+        self.scaleV = 1.
 
         # Physical constants
         self.g = 9.81          # gravitational acceleration
@@ -584,6 +585,9 @@ class MantleConversion:
         print "        Define the output path and/or file name"
         print "        Example: -out ../Output.dat"
         print
+        print "    -scaleV <value>"
+        print "        Scale the velocity with the given value"
+        print
         print "    -setQ <1|2>"
         print "        Define anelasticity parameters after 1 - Sobolev et al."
         print "        (1996) or 2 - Berckhemer et al. (1982). Default: 1."
@@ -763,19 +767,21 @@ class MantleConversion:
         must be `X Y Z Vel`.
         """
         print "Loading input file:", self.FileIn
+        print "> Velocity scale factor is", self.scaleV
         self.DataRaw = np.loadtxt(self.FileIn)
         # Remove rows below maximum depth, defined by self.MaxDepth
         DelRows = np.where(np.abs(self.DataRaw[:, 2]) > np.abs(self.MaxDepth))
         self.DataRaw = np.delete(self.DataRaw, DelRows, axis=0)
         self.Depths = np.unique(self.DataRaw[:, 2])
+        self.DataRaw[:, 3] *= self.scaleV
         Vmin = np.amin(self.DataRaw[:, 3])
         if Vmin < 1000:
             print
-            print "WARNING: Minimum velocity is " + str(Vmin) + "! Velocity " \
-                  "should be in m/s."
+            print "WARNING: Minimum velocity is " + str(Vmin) + "!"
+            print "   The velocity should be in m/s. Use -scaleV to modify " \
+                  "the values on the fly."
             if raw_input("Do you want to continue? [N/y]") != "y":
                 sys.exit()
-
 
     def ReadArgs(self):
         """
@@ -807,6 +813,9 @@ class MantleConversion:
                 self.NN = True
             elif sys.argv[i] == '-out':
                 self.FileOut = sys.argv[i+1]
+                i += 1
+            elif sys.argv[i] == '-scaleV':
+                self.scaleV = float(sys.argv[i+1])
                 i += 1
             elif sys.argv[i] == '-setQ':
                 self.SetQMode(sys.argv[i+1])
@@ -840,6 +849,7 @@ class MantleConversion:
         Output[:, 5] = self.Result_Rho
         Output_h = "Temperature output\n"
         Output_h += "Input file: " + str(self.FileIn) + "\n"
+        Output_h += "Velocity scale factor: " + str(self.scaleV) + "\n"
         Output_h += "Mantle composition:\n"
         for i in self.Mineralogy:
             Output_h += str(i['phase']) + " - " + str(i['fraction']) + "\n"
@@ -989,6 +999,7 @@ class MantleConversion:
         print "        -h | --help"
         print "        -NN"
         print "        -out <FileOut>"
+        print "        -scaleV <value>"
         print "        -setQ <1|2>"
         print "        -v | -verbose"
         print "        -XFe <val>"
