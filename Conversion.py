@@ -770,7 +770,9 @@ class MantleConversion:
         print "> Velocity scale factor is", self.scaleV
         self.DataRaw = np.loadtxt(self.FileIn)
         # Remove rows below maximum depth, defined by self.MaxDepth
-        DelRows = np.where(np.abs(self.DataRaw[:, 2]) > np.abs(self.MaxDepth))
+        DelRows = np.where(np.abs(self.DataRaw[:, 2]) >= np.abs(self.MaxDepth))
+        if len(DelRows[0]) > 0:
+            print "> Removing depth values beyond", self.MaxDepth, "m."
         self.DataRaw = np.delete(self.DataRaw, DelRows, axis=0)
         self.Depths = np.unique(self.DataRaw[:, 2])
         self.DataRaw[:, 3] *= self.scaleV
@@ -778,9 +780,9 @@ class MantleConversion:
         if Vmin < 1000:
             print
             print "WARNING: Minimum velocity is " + str(Vmin) + "!"
-            print "   The velocity should be in m/s. Use -scaleV to modify " \
+            print "    The velocity should be in m/s. Use -scaleV to modify " \
                   "the values on the fly."
-            if raw_input("Do you want to continue? [N/y]") != "y":
+            if raw_input("    Do you want to continue? [N/y]") != "y":
                 sys.exit()
 
     def ReadArgs(self):
