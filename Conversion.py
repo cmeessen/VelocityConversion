@@ -578,6 +578,10 @@ class MantleConversion:
         print "        Calculate P/T-dependent Alpha based on excel worksheet"
         print "        from Hacker and Abers (2004). Default: P/T-independent."
         print
+        print "    -dT"
+        print "        Changes the temperature increment in the P-T tables."
+        print "        Default increment is 1K."
+        print
         print "    -NN"
         print "        Output file header information reduced to \# of points"
         print
@@ -811,6 +815,9 @@ class MantleConversion:
                 self.n_Phases = arg2
                 self.AssignPhases()
                 i += 1
+            elif sys.argv[i] == '-dT':
+                self.dT = float(sys.argv[i+1])
+                i += 1
             elif sys.argv[i] == '-NN':
                 self.NN = True
             elif sys.argv[i] == '-out':
@@ -997,6 +1004,7 @@ class MantleConversion:
         print "    Optional arguments:"
         print "        -AlphaT"
         print "        -AlphaPT"
+        print "        -dT <val>"
         print "        -comp <Filename>"
         print "        -h | --help"
         print "        -NN"
