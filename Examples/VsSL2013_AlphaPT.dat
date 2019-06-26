@@ -1,5 +1,6 @@
 # Temperature output
 # Input file: VsSL2013.dat
+# Velocity scale factor: 1.0
 # Mantle composition:
 # cpx - 0.133
 # gnt - 0.153
