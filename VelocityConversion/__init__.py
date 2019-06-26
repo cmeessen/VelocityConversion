@@ -872,7 +872,8 @@ class MantleConversion:
         Output[:, 4] = self.Result_T - self.TKelvin
         Output[:, 5] = self.Result_Rho
         Output_h = "Temperature output\n"
-        Output_h += "Input file: " + str(self.FileIn) + "\n"
+        if self.FileIn:
+            Output_h += "Input file: " + str(self.FileIn) + "\n"
         Output_h += "Velocity scale factor: " + str(self.scaleV) + "\n"
         Output_h += "Mantle composition:\n"
         for i in self.Mineralogy:
@@ -906,6 +907,28 @@ class MantleConversion:
                    comments=StrComment)
         print('> Done!')
     
+    def SetAlpha(self, mode):
+        """Set the dependency of the thermal expansion coefficient.
+
+        If `const`, will use a pressure- and temperature-independent expansion
+        coefficient. The value used is `alpha0` (see `MinDB.csv`). If `T`, the
+        temperature dependency after Saxena and Shen (1992) will be applied. If
+        `PT`, will use a pressure- and temperature-dependent thermal expansion
+        coefficient that was obtained from Hacker and Abers (2004) using the
+        visual basic script in the repository folder `AlphaPT`.
+
+        Parameters
+        ----------
+        mode : str
+            Valid modes are `const`, `T` and `PT`
+        """
+        valid_modes = {
+            'const': 'Alpha',
+            'T': 'AlphaT',
+            'PT': 'AlphaPT'
+        }
+        self.UseAlpha = valid_modes[mode]
+    
     def SetMineralogy(self, assemblage):
         """
         Manually define the mineralogy
@@ -926,24 +949,32 @@ class MantleConversion:
         self.__check_mineralogy__()
         self.AssignPhases()
 
-    def SetQMode(self, Mode):
+    def SetQMode(self, mode):
+        """Define the attenuation model
+        
+        Defines the QMode which is being used for attenuation.
+
+        Parameters
+        ----------
+        mode : int, str
+            `1` will use the model of Sobolev et al. (1996), `2` will use
+            Berckhemer et al. (1982).
         """
-        Defines the QMode which is being used for attenuation calculation
-        """
-        if Mode == '1':
+        mode = str(mode)
+        if mode == '1':
             self.a = 0.15
             self.A = 0.148
             self.H = 500000.
             self.V = 0.000020
             self.Qmode = 'Sobolev et al. (1996)'
-        elif Mode == '2':
+        elif mode == '2':
             self.a = 0.25
             self.A = 0.0002
             self.H = 584000.
             self.V = 0.000021
             self.Qmode = 'Berckhemer et al. (1982)'
         else:
-            print("ERROR: Unknown Q mode", Mode)
+            print("ERROR: Unknown Q mode", mode)
             sys.exit()
         print("Using Q after", self.Qmode)
         print("    a =", self.a)
