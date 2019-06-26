@@ -41,6 +41,8 @@ import math
 import inspect
 import os
 import platform
+from warnings import warn
+import __main__
 
 
 class MantleConversion:
@@ -49,9 +51,6 @@ class MantleConversion:
     """
 
     def __init__(self):
-        """
-        Initiate default properties
-        """
 
         # Define folder separator depending on the OS
         self.OS = platform.system()
@@ -123,17 +122,35 @@ class MantleConversion:
         self.a = 0.15
         self.H = 500000.
         self.V = 0.000020
-    
+
+        # Check whether run as terminal program or loaded as module
+        self.as_module = not hasattr(__main__, '__file__')
+
+    def __raise__(self, error_type, msg):
+        if self.as_module:
+            if error_type is Warning:
+                warn(msg)
+            else:
+                raise error_type(msg)
+        else:
+            if error_type is Warning:
+                msg = "WARNING: " + msg
+            else:
+                msg = "ERROR: " + msg
+            print(msg)
+            if error_type is not Warning:
+                sys.exit()
+
     def __check_vmin__(self):
         Vmin = np.amin(self.DataRaw[:, 3])
         if Vmin < 1000:
-            print()
-            print("WARNING: Minimum velocity is " + str(Vmin) + "!")
-            print("    The velocity should be in m/s. Use -scaleV to modify " \
-                  "the values on the fly.")
-            if input("    Do you want to continue? [N/y]") != "y":
-                sys.exit()
-    
+            msg = "Minimum velocity is " + str(Vmin) + "!\n"
+            msg += "It appears that the velocities are provided in km/s but"
+            msg += "they should be provided in m/s."
+            if not self.as_module:
+                msg += "\nUse -scaleV to modify the values on the fly."
+            self.__raise__(Warning, msg)
+
     def __check_mineralogy__(self):
         """
         Check mineralogy information for consistency.
@@ -145,28 +162,30 @@ class MantleConversion:
             if self.XFe is None:
                 self.XFe = float(self.Mineralogy['fraction'][-1])
             else:
-                print('Warning: XFe already defined by command line argument')
+                msg = 'XFe already defined by command line argument'
+                self.__raise__(Warning, msg)
             self.Mineralogy = np.delete(self.Mineralogy, -1)
         else:
             self.XFe = 0.0
-            print('Warning: XFe undefined!')
+            msg = 'XFe undefined!'
+            self.__raise__(Warning, msg)
         print('> XFe assigned to', self.XFe)
 
         # Check if all mineral phases are known
         for i in self.Mineralogy['phase']:
             if i not in self.MinDB['phase']:
-                print('ERROR: Unknown mineral phase:', i)
-                sys.exit()
+                msg = 'Unknown mineral phase: ' + str(i)
+                self.__raise__(ValueError, msg)
         print('> All mineral phases are known')
 
         # Check if sum of mineral fractions equals 1
         frac_sum = np.round((np.sum(self.Mineralogy['fraction'])), decimals=10)
         if frac_sum != 1.0:
-            print('ERROR: Sum of mineral phase fractions is ' + str(frac_sum))
-            sys.exit()
+            msg = 'Sum of mineral phase fractions is ' + str(frac_sum)
+            self.__raise__(ValueError, msg)
         else:
             print('> Sum of mineral phases equals 1.0')
-        
+
         self.n_Phases = len(self.Mineralogy['phase'])
 
     def AK135(self, depth, simple=False):
@@ -273,14 +292,14 @@ class MantleConversion:
             try:
                 idxP = max(np.where(self.AlphaP <= P)[0])
             except ValueError:
-                print("ERROR: Pressure", P, "out of range.")
-                sys.exit()
+                msg = "Pressure " + str(P) + " out of range!"
+                self.__raise__(RuntimeError, msg)
 
             try:
                 idxT = max(np.where(self.AlphaT <= T)[0])
             except ValueError:
-                print("ERROR: Temperature", T, "out of range.")
-                sys.exit()
+                msg = "Temperature " + str(T) + " out of range!"
+                self.__raise__(RuntimeError, msg)
 
             # 2 - Inverse-distance interpolation to get Alpha(P,T)
             Alpha_Tmin = min(self.AlphaT)
@@ -726,7 +745,8 @@ class MantleConversion:
 
         # Load file
         if FileIn is None:
-            print('WARNING: No mineralogy defined. Using default mineralogy.')
+            msg = "No mineralogy defined. Using default mineralogy."
+            self.__raise__(Warning, msg)
             self.DefaultMineralogy()
         else:
             print('Loading mineralogy', FileIn)
@@ -737,8 +757,8 @@ class MantleConversion:
         ValidDtypes = ['phase', 'fraction']
         for i in RawData.dtype.names:
             if i not in ValidDtypes:
-                print('ERROR: Invalid data type \"' + i + "\" in", FileIn)
-                sys.exit()
+                msg = 'Invalid data type \"' + str(i) + '\" in ' + FileIn
+                self.__raise__(ValueError, msg)
         print('> All datatypes known')
 
         # Sort alphabetically
@@ -906,7 +926,7 @@ class MantleConversion:
         np.savetxt(self.FileOut, Output, header=Output_h, fmt=fmtstring,
                    comments=StrComment)
         print('> Done!')
-    
+
     def SetAlpha(self, mode):
         """Set the dependency of the thermal expansion coefficient.
 
@@ -928,7 +948,7 @@ class MantleConversion:
             'PT': 'AlphaPT'
         }
         self.UseAlpha = valid_modes[mode]
-    
+
     def SetMineralogy(self, assemblage):
         """
         Manually define the mineralogy
@@ -940,18 +960,18 @@ class MantleConversion:
         """
         n_Phases = len(assemblage)
         phases = list(assemblage.keys())
-        
+
         names = ['phase', 'fraction']
         formats = ['U10', 'f8']
         dtypes = {'names':names, 'formats':formats}
-        
+
         self.Mineralogy = np.array(list(assemblage.items()), dtype=dtypes)
         self.__check_mineralogy__()
         self.AssignPhases()
 
     def SetQMode(self, mode):
         """Define the attenuation model
-        
+
         Defines the QMode which is being used for attenuation.
 
         Parameters
@@ -974,8 +994,8 @@ class MantleConversion:
             self.V = 0.000021
             self.Qmode = 'Berckhemer et al. (1982)'
         else:
-            print("ERROR: Unknown Q mode", mode)
-            sys.exit()
+            msg = "Unknown attenuation mode " + str(mode)
+            self.__raise__(ValueError, msg)
         print("Using Q after", self.Qmode)
         print("    a =", self.a)
         print("    A =", self.A)
@@ -998,7 +1018,8 @@ class MantleConversion:
             self.VelType = 'P'
             self.omega = 2*math.pi*1
         else:
-            raise ValueError('Wrong velocity type', TypeString)
+            msg = "Unknown velocity type " + TypeString
+            self.__raise__(ValueError, msg)
 
     def SetXFe(self, XFe=None):
         """
@@ -1049,11 +1070,11 @@ class MantleConversion:
         """
 
         if self.FileIn is None:
-            print("Error: No input file name given.\nExit!")
-            sys.exit()
+            msg = "No input file name given.")
+            self.__raise__(ValueError, msg)
         if self.VelType is None:
-            print("Error: No velocity type given.\nExit!")
-            sys.exit()
+            msg = "Error: No velocity type given.")
+            self.__raise__(ValueError, msg)
         if self.UseAlpha == 'Alpha':
             print("Using constant expansion coefficient")
         elif self.UseAlpha == 'AlphaT':
