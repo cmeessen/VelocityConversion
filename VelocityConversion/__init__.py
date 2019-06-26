@@ -63,6 +63,7 @@ class MantleConversion:
         self.PyPath = os.path.dirname(os.path.abspath(self.PyFile))
 
         # Other program related parameters
+        self.FileIn = None
         self.FileOut = None
         self.Verbose = False
         self.SimpleP = False
@@ -122,6 +123,51 @@ class MantleConversion:
         self.a = 0.15
         self.H = 500000.
         self.V = 0.000020
+    
+    def __check_vmin__(self):
+        Vmin = np.amin(self.DataRaw[:, 3])
+        if Vmin < 1000:
+            print()
+            print("WARNING: Minimum velocity is " + str(Vmin) + "!")
+            print("    The velocity should be in m/s. Use -scaleV to modify " \
+                  "the values on the fly.")
+            if input("    Do you want to continue? [N/y]") != "y":
+                sys.exit()
+    
+    def __check_mineralogy__(self):
+        """
+        Check mineralogy information for consistency.
+        """
+        # Check if last line contains iron content information
+        # Does not overwrite XFe if already defined by command line argument
+        if self.Mineralogy['phase'][-1] == 'XFe' or \
+           self.Mineralogy['phase'][-1] == 'xfe':
+            if self.XFe is None:
+                self.XFe = float(self.Mineralogy['fraction'][-1])
+            else:
+                print('Warning: XFe already defined by command line argument')
+            self.Mineralogy = np.delete(self.Mineralogy, -1)
+        else:
+            self.XFe = 0.0
+            print('Warning: XFe undefined!')
+        print('> XFe assigned to', self.XFe)
+
+        # Check if all mineral phases are known
+        for i in self.Mineralogy['phase']:
+            if i not in self.MinDB['phase']:
+                print('ERROR: Unknown mineral phase:', i)
+                sys.exit()
+        print('> All mineral phases are known')
+
+        # Check if sum of mineral fractions equals 1
+        frac_sum = np.round((np.sum(self.Mineralogy['fraction'])), decimals=10)
+        if frac_sum != 1.0:
+            print('ERROR: Sum of mineral phase fractions is ' + str(frac_sum))
+            sys.exit()
+        else:
+            print('> Sum of mineral phases equals 1.0')
+        
+        self.n_Phases = len(self.Mineralogy['phase'])
 
     def AK135(self, depth, simple=False):
         """
@@ -362,7 +408,7 @@ class MantleConversion:
         * Nothing
             Updates Result_T and Result_Rho
         """
-        print('Start temperature estimation')
+        print('Starting temperature estimation')
         self.Result_T = np.zeros([self.DataRaw.shape[0]])
         self.Result_Rho = np.zeros([self.DataRaw.shape[0]])
         j = self.ShowProgress()
@@ -527,7 +573,7 @@ class MantleConversion:
         if self.UseAlpha == 'AlphaPT':
             self.LoadAlphaTables()
 
-        print('Fill tables')
+        print('Filling tables')
         nDepths = self.Depths.shape[0]
         arr_T = np.linspace(self.Tmin, self.Tmax, self.nT)
         self.SynPTVRho = {}
@@ -676,25 +722,16 @@ class MantleConversion:
 
         * FileIn : string
             Input file name and path
-
-        Returns:
-
-        * RawData : numpy.array
-            Structured numpy array containing 'phase' and 'fraction', sorted
-            alphabetically for 'phase'
-
-        * n_phases : integer
-            Number of mineral phases defined
         """
 
         # Load file
         if FileIn is None:
-            print('No mineralogy defined. Use default mineralogy.')
+            print('WARNING: No mineralogy defined. Using default mineralogy.')
             self.DefaultMineralogy()
         else:
             print('Loading mineralogy', FileIn)
             RawData = np.genfromtxt(FileIn, names=True, dtype=None,
-                                    delimiter=',')
+                                    delimiter=',', encoding='utf8')
 
         # Check if all dtypes known
         ValidDtypes = ['phase', 'fraction']
@@ -704,40 +741,10 @@ class MantleConversion:
                 sys.exit()
         print('> All datatypes known')
 
-        # Check if last line contains iron content information
-        # Does not overwrite XFe if already defined by command line argument
-        if RawData['phase'][-1] == 'XFe' or RawData['phase'][-1] == 'xfe':
-            if self.XFe is None:
-                self.XFe = float(RawData['fraction'][-1])
-            else:
-                print('Warning: XFe already defined by command line argument')
-            RawData = np.delete(RawData, -1)
-        else:
-            self.XFe = 0.0
-            print('Warning: XFe not defined in', FileIn)
-        print('> XFe assigned to', self.XFe)
-
-        # Check if all mineral phases are known
-        for i in RawData['phase']:
-            if i not in self.MinDB['phase']:
-                print('ERROR: Unknown mineral phase in', FileIn, ':', i)
-                sys.exit()
-        print('> All mineral phases are known')
-
-        # Check if sum of mineral fractions equals 1
-        frac_sum = np.round((np.sum(RawData['fraction'])), decimals=10)
-        if frac_sum != 1.0:
-            print('ERROR: Sum of mineral phase fractions is ' + str(frac_sum))
-            sys.exit()
-        else:
-            print('> Sum of mineral phases equals 1.0')
-
         # Sort alphabetically
-        RawData = np.sort(RawData, order='phase')
-
-        n_phases = len(RawData['phase'])
-
-        return RawData, n_phases
+        self.Mineralogy = np.sort(RawData, order='phase')
+        self.__check_mineralogy__()
+        self.AssignPhases()
 
     def LoadMineralProperties(self, FileIn=None, delim=';'):
         """
@@ -779,7 +786,8 @@ class MantleConversion:
             FileIn = self.PyPath + self.FolderSep + 'MinDB.csv'
             if self.Verbose:
                 print("Importing mineral properties from", FileIn)
-        DBase = np.genfromtxt(FileIn, names=True, dtype=None, delimiter=delim)
+        DBase = np.genfromtxt(FileIn, names=True, dtype=None, delimiter=delim,
+                              encoding='utf8')
         return DBase
 
     def LoadFile(self):
@@ -797,14 +805,7 @@ class MantleConversion:
         self.DataRaw = np.delete(self.DataRaw, DelRows, axis=0)
         self.Depths = np.unique(self.DataRaw[:, 2])
         self.DataRaw[:, 3] *= self.scaleV
-        Vmin = np.amin(self.DataRaw[:, 3])
-        if Vmin < 1000:
-            print()
-            print("WARNING: Minimum velocity is " + str(Vmin) + "!")
-            print("    The velocity should be in m/s. Use -scaleV to modify " \
-                  "the values on the fly.")
-            if input("    Do you want to continue? [N/y]") != "y":
-                sys.exit()
+        self.__check_vmin__()
 
     def ReadArgs(self):
         """
@@ -827,10 +828,7 @@ class MantleConversion:
             elif sys.argv[i] == '-AlphaPT':
                 self.UseAlpha = 'AlphaPT'
             elif sys.argv[i] == '-comp':
-                arg1, arg2 = self.LoadMineralogy(sys.argv[i+1])
-                self.Mineralogy = arg1
-                self.n_Phases = arg2
-                self.AssignPhases()
+                self.LoadMineralogy(sys.argv[i+1])
                 i += 1
             elif sys.argv[i] == '-dT':
                 self.dT = float(sys.argv[i+1])
@@ -907,6 +905,26 @@ class MantleConversion:
         np.savetxt(self.FileOut, Output, header=Output_h, fmt=fmtstring,
                    comments=StrComment)
         print('> Done!')
+    
+    def SetMineralogy(self, assemblage):
+        """
+        Manually define the mineralogy
+
+        Parameters
+        ----------
+        assemblage : dir
+            dir with keys that correspond to the `phase` column in MinDB.csv
+        """
+        n_Phases = len(assemblage)
+        phases = list(assemblage.keys())
+        
+        names = ['phase', 'fraction']
+        formats = ['U10', 'f8']
+        dtypes = {'names':names, 'formats':formats}
+        
+        self.Mineralogy = np.array(list(assemblage.items()), dtype=dtypes)
+        self.__check_mineralogy__()
+        self.AssignPhases()
 
     def SetQMode(self, Mode):
         """
