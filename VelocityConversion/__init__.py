@@ -186,6 +186,7 @@ class MantleConversion:
         else:
             print('> Sum of mineral phases equals 1.0')
 
+        self.Mineralogy = np.sort(self.Mineralogy, order='phase')
         self.n_Phases = len(self.Mineralogy['phase'])
 
     def AK135(self, depth, simple=False):
@@ -428,35 +429,34 @@ class MantleConversion:
             Updates Result_T and Result_Rho
         """
         print('Starting temperature estimation')
-        self.Result_T = np.zeros([self.DataRaw.shape[0]])
-        self.Result_Rho = np.zeros([self.DataRaw.shape[0]])
+        self.Result_T = list()
+        self.Result_Rho = list()
+
+        # use return_index to maintain order
+        _, idx = np.unique(self.DataRaw[:,2], return_index=True)
+        unique_z = self.DataRaw[np.sort(idx), 2]
+
         j = self.ShowProgress()
-        j_max = len(self.DataRaw)
-        for val in self.DataRaw:
-            Obs_z = val[2]
-            Obs_v = val[3]
-            i = 0
-            i_max = self.SynPTVRho[Obs_z].shape[0] - 1
-            # Search until observed temperature is greater than calculated
-            while Obs_v < self.SynPTVRho[Obs_z][i, 1]:
-                if (i + 1) <= i_max:
-                    i += 1
-                else:
-                    i = i_max + 1
-                    break
-            # If found a match linearly interpolate temperature and density
-            if i <= i_max:
-                Syn_T1, Syn_v1, Syn_Rho1 = self.SynPTVRho[Obs_z][i]
-                Syn_T2, Syn_v2, Syn_Rho2 = self.SynPTVRho[Obs_z][i-1]
-                T_term1 = (Syn_T2 - Syn_T1)/(Syn_v2 - Syn_v1)
-                self.Result_T[j] = T_term1 * (Obs_v - Syn_v1) + Syn_T1
-                Rho_term1 = (Syn_Rho2 - Syn_Rho1)/(Syn_v2 - Syn_v1)
-                self.Result_Rho[j] = Rho_term1*(Obs_v - Syn_v1) + Syn_Rho1
-            # Return -1 for T or Rho if no match could be found
-            else:
-                self.Result_T[j] = self.T0 - 1
-                self.Result_Rho[j] = -1
+        j_max = unique_z.shape[0]
+
+        for z in unique_z:
+            arr_select = self.DataRaw[:, 2] == z
+            obs_v = self.DataRaw[arr_select][:, 3]
+            
+            syn_T = self.SynPTVRho[z][:, 0]
+            syn_v = self.SynPTVRho[z][:, 1]
+            syn_rho = self.SynPTVRho[z][:, 2]
+            
+            ipkwds = dict(left=-1, right=-1)
+            result_T = np.interp(obs_v, syn_v[::-1], syn_T[::-1], **ipkwds)
+            result_rho = np.interp(obs_v, syn_v[::-1], syn_rho[::-1], **ipkwds)
+            self.Result_T.extend(result_T.tolist())
+            self.Result_Rho.extend(result_rho.tolist())
             j = self.ShowProgress(j, j_max)
+        
+        self.Result_T = np.asarray(self.Result_T)
+        self.Result_Rho = np.asarray(self.Result_Rho)
+
         print('> Done!')
 
     def CalcVRho(self, z, T):
@@ -762,7 +762,7 @@ class MantleConversion:
         print('> All datatypes known')
 
         # Sort alphabetically
-        self.Mineralogy = np.sort(RawData, order='phase')
+        self.Mineralogy = RawData
         self.__check_mineralogy__()
         self.AssignPhases()
 
@@ -1070,10 +1070,10 @@ class MantleConversion:
         """
 
         if self.FileIn is None:
-            msg = "No input file name given.")
+            msg = "No input file name given."
             self.__raise__(ValueError, msg)
         if self.VelType is None:
-            msg = "Error: No velocity type given.")
+            msg = "Error: No velocity type given."
             self.__raise__(ValueError, msg)
         if self.UseAlpha == 'Alpha':
             print("Using constant expansion coefficient")
