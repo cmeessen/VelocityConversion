@@ -575,6 +575,21 @@ class MantleConversion:
         TableVRho[:, 1] = rho_rock
 
         return TableVRho
+    
+    def DefaultMineralogy(self):
+        """Assign default mineralogy
+
+        Assigns garnet lherzolite by Jordan (1979).
+        """
+        assemblage = {
+            "ol": 0.67,
+            "cpx": 0.045,
+            "opx": 0.225,
+            "gnt": 0.06,
+            "XFe": 0.11
+        }
+        print("Assigning default mineralogy garnet lherzolite (Jordan, 1979).")
+        self.SetMineralogy(assemblage)
 
     def FillTables(self):
         """
