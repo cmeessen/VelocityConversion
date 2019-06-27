@@ -1,55 +1,133 @@
 # VelocityConversion
 
+- [VelocityConversion](#VelocityConversion)
+  - [Introduction](#Introduction)
+  - [Recommended citation for VelocityConversion](#Recommended-citation-for-VelocityConversion)
+  - [Prerequisites](#Prerequisites)
+  - [How to get started](#How-to-get-started)
+    - [Usage as command line tool](#Usage-as-command-line-tool)
+    - [Usage as a Python module](#Usage-as-a-Python-module)
+  - [Modifying physical properties of the minerals](#Modifying-physical-properties-of-the-minerals)
+  - [References](#References)
+  - [Licence](#Licence)
+
+## Introduction
+
 This code is a python implementation of the p- and s-wave velocity to density
 conversion approach after Goes et al. (2000). The implementation was optimised
 for regular 3D grids using lookup tables instead of Newton iterations.
 
 Goes et al. (2000) regard the expansion coefficient as temperature dependent
-using the relation by Saxena and Shen (1992). In `Conversion.py`, the user can
-additionally choose between a constant expansion coefficient or a pressure- and
-temperature dependent coefficient that was derived from Hacker and Abers (2004).
+using the relation by Saxena and Shen (1992). In `VelocityConversion`, the user
+can additionally choose between a constant expansion coefficient or a pressure-
+and temperature dependent coefficient that was derived from Hacker and Abers
+(2004).
 
 For detailed information on the physics behind the approach have a look at the
 original paper by Goes et al. (2000).
 
 ## Recommended citation for VelocityConversion
+
 Meeßen, Christian (2017): VelocityConversion. V. v1.0.1. GFZ Data Services.
 http://doi.org/10.5880/GFZ.6.1.2017.001
 
-## Licence
+## Prerequisites
 
-Licence: GNU General Public Licence, Version 3, 29 June 2007
-
-Copyright (2017): Christian Meeßen, Potsdam, Germany
-
-VelocityConversion is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the Free
-Software Foundation, either version 3 of the License, or (at your option) any
-later version. VelocityConversion is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
-License for more details. You should have received a cop y of the GNU General
-Public License along with this program. If not, see
-http://www.gnu.org/licenses/.
+This code requires an installation of Python 3.x and numpy.
+Building the documentation furthermore requires sphinx and m2r.
 
 ## How to get started
 
-To get help on the usage type
+The code can be used either as a command line tool or as a module within
+Python. The first step to use it, is to create a clone or download the
+repository:
+
+```bash
+git clone https://github.com/cmeessen/VelocityConversion.git
+```
+
+### Usage as command line tool
+
+In order to use the code as command line tool, add the `./Examples` directory
+to your `PATH`, e.g. in your bash profile:
+
+```bash
+export PATH=/path/to/VelocityConversion/Examples
+```
+
+Alternatively you can move the bash script
+[VelocityConversion](./Examples/VelocityConversion) to a place that is within
+your `PATH`. Now the bash script `VelocityConversion` can be executed:
 
 ```
-python Conversion.py --help
+VelocityConversion
+
+Usage: VelocityConversion FileIn -type <P|S> [optional args]
+    Optional arguments:
+        -AlphaT
+        -AlphaPT
+        -dT <val>
+        -comp <Filename>
+        -h | --help
+        -NN
+        -out <FileOut>
+        -scaleV <value>
+        -setQ <1|2>
+        -v | -verbose
+        -XFe <val>
 ```
 
 The steps to prepare a conversion are
 
 - definition of mantle rock composition in a `*.csv` file using the mineral
-  terminology of `MinDB.csv`
+  terminology of [MinDB.csv](./VelocityConversion/MinDB.csv)
 - provide a velocity distribution on a regular 3D grid where columns are `x y z
   v`
-- run the `Conversion.py` specifying the velocity type with `-type P` or
+- run `VelocityConversion` specifying the velocity type with `-type P` or
   `-type S`
 
-Working examples for conversions are given in the `./Example/` directory.
+Working examples for the usage as command line tool are provided in the script
+[RunExamples.sh](./Examples/RunExamples.sh).
+
+### Usage as a Python module
+
+VelocityConversion can also be imported as a Python module. Therefore, navigate
+to the folder that contains your clone of the repository (and
+[setup.py](./setup.py)) and execute
+
+```bash
+pip install -e .
+```
+
+Now, the module can be imported to Python:
+
+```python
+from VelocityConversion import MantleConversion
+MC = MantleConversion()
+```
+
+A short working example for a conversion is:
+
+```python
+from VelocityConversion import MantleConversion
+MC = MantleConversion()
+MC.LoadFile("./Examples/VsSL2013.dat")
+MC.SetVelType("S")
+MC.DefaultMineralogy()
+MC.FillTables()
+MC.CalcPT()
+MC.SaveFile("./Examples/VsSL2013_out.dat")
+```
+
+A more elaborate example is given in [RunAsModule.py](./Examples/RunAsModule.py).
+
+## Modifying physical properties of the minerals
+
+The database that contains the physical properties of the individual mineral
+phases is stored in [MinDB.csv](./VelocityConversion/MinDB.csv).
+Mineral parameters can be edited, or new minerals added. A new mineral phase
+should then be referred to in the code or the assemblage file using the name
+that was assigned in the `phase` column of `MinDB.csv`.
 
 ## References
 
@@ -87,3 +165,19 @@ Altherr, and Karl Fuchs. “Upper Mantle Temperatures from Teleseismic Tomograph
 of French Massif Central Including Effects of Composition, Mineral Reactions,
 Anharmonicity, Anelasticity and Partial Melt.” Earth and Planetary Science
 Letters 139, no. 1–2 (März 1996): 147–63. doi:10.1016/0012-821X(95)00238-8.
+
+## Licence
+
+Licence: GNU General Public Licence, Version 3, 29 June 2007
+
+Copyright (2017): Christian Meeßen, Potsdam, Germany
+
+VelocityConversion is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version. VelocityConversion is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+License for more details. You should have received a cop y of the GNU General
+Public License along with this program. If not, see
+http://www.gnu.org/licenses/.
