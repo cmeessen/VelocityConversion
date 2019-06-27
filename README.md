@@ -119,7 +119,9 @@ MC.CalcPT()
 MC.SaveFile("./Examples/VsSL2013_out.dat")
 ```
 
-A more elaborate example is given in [RunAsModule.py](./Examples/RunAsModule.py).
+For a more complete documentation on how to use `VelocityConversion` as a Python
+module please visit the
+[documentation](https://cmeessen.github.io/VelocityConversion/).
 
 ## Modifying physical properties of the minerals
 
