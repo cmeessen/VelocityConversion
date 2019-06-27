@@ -35,6 +35,7 @@ GFZ Potsdam
 christian.meessen@gfz-potsdam.de
 """
 
+from __future__ import print_function, unicode_literals
 import numpy as np
 import sys
 import math
@@ -936,9 +937,9 @@ class MantleConversion:
         if self.NN:
             Output_h = str(self.DataRaw.shape[0])
             StrComment = ''
-        fmtstring = '%f %f %f %.2f %.1f %.1f'
-        print('Saving results to', self.FileOut)
-        np.savetxt(self.FileOut, Output, header=Output_h, fmt=fmtstring,
+        fmtstring = b'%f %f %f %.2f %.1f %.1f'
+        print('Saving results to', fileout)
+        np.savetxt(fileout, Output, header=Output_h, fmt=fmtstring,
                    comments=StrComment)
         print('> Done!')
 
