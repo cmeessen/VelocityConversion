@@ -1,57 +1,60 @@
 # -*- coding: utf-8 -*-
-################################################################################
-#                     Copyright (C) 2017 by Christian Meeßen                   #
-#                                                                              #
-#                    This file is part of VelocityConversion                   #
-#                                                                              #
-#   VelocityConversion is free software: you can redistribute it and/or modify #
-#     it under the terms of the GNU General Public License as published by     #
-#            the Free Software Foundation version 3 of the License.            #
-#                                                                              #
-#   VelocityConversion is distributed in the hope that it will be useful, but  #
-#          WITHOUT ANY WARRANTY; without even the implied warranty of          #
-#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU       #
-#                   General Public License for more details.                   #
-#                                                                              #
-#      You should have received a copy of the GNU General Public License       #
-#   along with VelocityConversion. If not, see <http://www.gnu.org/licenses/>. #
-################################################################################
+###############################################################################
+#                    Copyright (C) 2017 by Christian Meeßen                   #
+#                                                                             #
+#                   This file is part of VelocityConversion                   #
+#                                                                             #
+#  VelocityConversion is free software: you can redistribute it and/or modify #
+#    it under the terms of the GNU General Public License as published by     #
+#           the Free Software Foundation version 3 of the License.            #
+#                                                                             #
+#  VelocityConversion is distributed in the hope that it will be useful, but  #
+#         WITHOUT ANY WARRANTY; without even the implied warranty of          #
+#      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU       #
+#                  General Public License for more details.                   #
+#                                                                             #
+#     You should have received a copy of the GNU General Public License       #
+#  along with VelocityConversion. If not, see <http://www.gnu.org/licenses/>. #
+###############################################################################
 """
 This code is a python implementation of the p- and s-wave velocity to density
 conversion approach after Goes et al. (2000)
 
-To obtain help on the usage run
-    Conversion.py --help
-
 Recommended citation
-Meeßen, Christian (2017): VelocityConversion. V. v1.0.1. GFZ Data Services.
-http://doi.org/10.5880/GFZ.6.1.2017.001
+====================
+
+> Meeßen, Christian (2017): VelocityConversion. V. v1.0.1. GFZ Data Services.
+> http://doi.org/10.5880/GFZ.6.1.2017.001
+
+Contact
+=======
 
 For questions or suggestions please contact
-Christian Meeßen
-Section 6.1 Basin Modelling
-GFZ Potsdam
-14473 Potsdam, Germany
-christian.meessen@gfz-potsdam.de
+
+| Christian Meeßen
+| Section 4.5 Basin Modelling
+| GFZ Potsdam
+| christian.meessen@gfz-potsdam.de
 """
 
+from __future__ import print_function, unicode_literals
 import numpy as np
 import sys
 import math
 import inspect
 import os
 import platform
+from warnings import warn
+import __main__
 
 
 class MantleConversion:
-    """
-    The class that provides the code for the velocity conversion.
-    """
+    """The conversion class
 
+    This class is used to perform the conversion from vp/vs to temperature and
+    density.
+    """
     def __init__(self):
-        """
-        Initiate default properties
-        """
 
         # Define folder separator depending on the OS
         self.OS = platform.system()
@@ -63,6 +66,7 @@ class MantleConversion:
         self.PyPath = os.path.dirname(os.path.abspath(self.PyFile))
 
         # Other program related parameters
+        self.FileIn = None
         self.FileOut = None
         self.Verbose = False
         self.SimpleP = False
@@ -123,24 +127,97 @@ class MantleConversion:
         self.H = 500000.
         self.V = 0.000020
 
+        # Check whether run as terminal program or loaded as module
+        self.as_module = not hasattr(__main__, '__file__')
+
+    def __raise__(self, error_type, msg):
+        if self.as_module:
+            if error_type is Warning:
+                warn(msg)
+            else:
+                raise error_type(msg)
+        else:
+            if error_type is Warning:
+                msg = "WARNING: " + msg
+            else:
+                msg = "ERROR: " + msg
+            print(msg)
+            if error_type is not Warning:
+                sys.exit()
+
+    def __check_vmin__(self):
+        Vmin = np.amin(self.DataRaw[:, 3])
+        if Vmin < 1000:
+            msg = "Minimum velocity is " + str(Vmin) + "!\n"
+            msg += "It appears that the velocities are provided in km/s but"
+            msg += "they should be provided in m/s."
+            if not self.as_module:
+                msg += "\nUse -scaleV to modify the values on the fly."
+            self.__raise__(Warning, msg)
+
+    def __check_mineralogy__(self):
+        """
+        Check mineralogy information for consistency.
+        """
+        # Check if last line contains iron content information
+        # Does not overwrite XFe if already defined by command line argument
+        phases = list(self.Mineralogy[:]['phase'])
+        if 'XFe' in phases or 'xfe' in phases:
+            if 'XFe' in phases:
+                xfe = 'XFe'
+            else:
+                xfe = 'xfe'
+            xfe_condition = self.Mineralogy['phase'] == xfe
+            xfe_fraction = self.Mineralogy[xfe_condition]['fraction'][0]
+
+            if self.XFe is None:
+                self.XFe = xfe_fraction
+            else:
+                msg = 'XFe already defined by command line argument'
+                self.__raise__(Warning, msg)
+            xfe_i = np.where(xfe_condition)[0][0]
+            self.Mineralogy = np.delete(self.Mineralogy, xfe_i)
+        else:
+            self.XFe = 0.0
+            msg = 'XFe undefined!'
+            self.__raise__(Warning, msg)
+        print('> XFe assigned to', self.XFe)
+
+        # Check if all mineral phases are known
+        for i in self.Mineralogy['phase']:
+            if i not in self.MinDB['phase']:
+                msg = 'Unknown mineral phase: ' + str(i)
+                self.__raise__(ValueError, msg)
+        print('> All mineral phases are known')
+
+        # Check if sum of mineral fractions equals 1
+        frac_sum = np.round((np.sum(self.Mineralogy['fraction'])), decimals=10)
+        if frac_sum != 1.0:
+            msg = 'Sum of mineral phase fractions is ' + str(frac_sum)
+            self.__raise__(ValueError, msg)
+        else:
+            print('> Sum of mineral phases equals 1.0')
+
+        self.Mineralogy = np.sort(self.Mineralogy, order='phase')
+        self.n_Phases = len(self.Mineralogy['phase'])
+
     def AK135(self, depth, simple=False):
         """
         Return Pressure at given depth based on AK135 model.
         Depth range: 18 to 310 km
         AK135: http://rses.anu.edu.au/seismology/ak135/ak135f.html
 
-        Paramters:
-
-        * depth : float
+        Parameters
+        ----------
+        depth : float
             Depth in m below sea level (positive!)
-
-        * simple : boolean
+        simple : boolean
             If `true`, return a lithostatic pressure based on an average
             density of 3000 kg/m3
 
-        Returns:
-
-        * Pressure : float
+        Returns
+        -------
+        Pressure : float
             Pressure in Pa at depth
         """
         if simple is False:
@@ -150,7 +227,7 @@ class MantleConversion:
             depth = np.absolute(depth)
             while DepthCalculated is False:
                 if i > self.AK135Model.shape[0]:
-                    print 'Limit of AK135 model exceeded. End loop.'
+                    print('Limit of AK135 model exceeded. End loop.')
                     break
                 z1, Rho1 = self.AK135Model[i]*1000.
                 z2, Rho2 = self.AK135Model[i+1]*1000.
@@ -168,43 +245,41 @@ class MantleConversion:
             return 3000.*self.g*np.absolute(depth)
 
     def Alpha(self, P, T, Mineral, p=4.0):
-        """
+        """Return the thermal expansion coefficient
+
         Returns alpha for a specific mineral depending on the initially defined
         dependency. `self.UseAlpha` determines how the thermal conductivity is
         being calculated:
 
-            * `self.UseAlpha = "Alpha"`
-                Neither P nor T dependent, returns alpha_0 from `MinDB.csv`.
+        * `self.UseAlpha = "Alpha"`
+            Neither P nor T dependent, returns alpha_0 from `MinDB.csv`.
 
-            * `self.UseAlpha = "AlphaT"`
-                T-dependent conductivity based on Eqn. 5 in Saxena and Shen
-                (1992)
+        * `self.UseAlpha = "AlphaT"`
+            T-dependent conductivity based on Eqn. 5 in Saxena and Shen
+            (1992)
 
-            * `self.UseAlpha = "AlphaPT"`
-                P- and T dependent conductivity which is caluclated by an
-                inverse-distance weighed interpolation between the four closest
-                grid points of `self.AlphaPT=AlphaDB.csv`.
+        * `self.UseAlpha = "AlphaPT"`
+            P- and T dependent conductivity which is caluclated by an
+            inverse-distance weighed interpolation between the four closest
+            grid points of `self.AlphaPT=AlphaDB.csv`.
 
-        Parameters:
-
-        * P : float
+        Parameters
+        ----------
+        P : float
             Pressure in Pa
-
-        * T : float
+        T : float
             Temperature in K
-
-        * Mineral : int
+        Mineral : int
             Mineral index in self.AlphaPT table
-
-        * p : float
+        p : float
             Power parameter. Greater values of p assign greater influence to
             values closest to the interpolated point, with the result turning
             into a mosaic of tiles. For 2D interpolation, p <= 2 cause
             interpolated values to be dominated by points far away (wikipedia).
 
-        Returns:
-
-        * AlphaCalc : float
+        Returns
+        -------
+        AlphaCalc : float
             Interpolated Alpha value for given parameters
         """
 
@@ -227,14 +302,14 @@ class MantleConversion:
             try:
                 idxP = max(np.where(self.AlphaP <= P)[0])
             except ValueError:
-                print "ERROR: Pressure", P, "out of range."
-                sys.exit()
+                msg = "Pressure " + str(P) + " out of range!"
+                self.__raise__(RuntimeError, msg)
 
             try:
                 idxT = max(np.where(self.AlphaT <= T)[0])
             except ValueError:
-                print "ERROR: Temperature", T, "out of range."
-                sys.exit()
+                msg = "Temperature " + str(T) + " out of range!"
+                self.__raise__(RuntimeError, msg)
 
             # 2 - Inverse-distance interpolation to get Alpha(P,T)
             Alpha_Tmin = min(self.AlphaT)
@@ -343,82 +418,70 @@ class MantleConversion:
             j += 1
 
     def CalcPT(self):
+        """Performs the interpolation of temperature and density
+
+        This function retrieves the values for density and temperature that
+        correspond to the input velocities. The results of the interpolation
+        are stored in the 1D-arrays `Result_Rho` and `Result_T`. The order
+        of the data points within these arrays is the same as in the input
+        file.
         """
-        Estimate temperatures of input velocities. Synthetic data is stored in
-        `self.SynPTVRho`. `SynPTVRho` dictionary structure::
+        print('Starting temperature estimation')
+        self.Result_T = list()
+        self.Result_Rho = list()
 
-            [
-                { Depth_i   : np.array[T, V, Rho],
-                  Depth_i+1 : np.array[T, V, Rho],
-                  ...
-                }
-            ]
+        # use return_index to maintain order
+        _, idx = np.unique(self.DataRaw[:, 2], return_index=True)
+        unique_z = self.DataRaw[np.sort(idx), 2]
 
-        The observed velocity is compared with synthetic velocities and then
-        linearly interpolated between the neares calculated temperatures.
-
-        Returns:
-
-        * Nothing
-            Updates Result_T and Result_Rho
-        """
-        print 'Start temperature estimation'
-        self.Result_T = np.zeros([self.DataRaw.shape[0]])
-        self.Result_Rho = np.zeros([self.DataRaw.shape[0]])
         j = self.ShowProgress()
-        j_max = len(self.DataRaw)
-        for val in self.DataRaw:
-            Obs_z = val[2]
-            Obs_v = val[3]
-            i = 0
-            i_max = self.SynPTVRho[Obs_z].shape[0] - 1
-            # Search until observed temperature is greater than calculated
-            while Obs_v < self.SynPTVRho[Obs_z][i, 1]:
-                if (i + 1) <= i_max:
-                    i += 1
-                else:
-                    i = i_max + 1
-                    break
-            # If found a match linearly interpolate temperature and density
-            if i <= i_max:
-                Syn_T1, Syn_v1, Syn_Rho1 = self.SynPTVRho[Obs_z][i]
-                Syn_T2, Syn_v2, Syn_Rho2 = self.SynPTVRho[Obs_z][i-1]
-                T_term1 = (Syn_T2 - Syn_T1)/(Syn_v2 - Syn_v1)
-                self.Result_T[j] = T_term1 * (Obs_v - Syn_v1) + Syn_T1
-                Rho_term1 = (Syn_Rho2 - Syn_Rho1)/(Syn_v2 - Syn_v1)
-                self.Result_Rho[j] = Rho_term1*(Obs_v - Syn_v1) + Syn_Rho1
-            # Return -1 for T or Rho if no match could be found
-            else:
-                self.Result_T[j] = self.T0 - 1
-                self.Result_Rho[j] = -1
+        j_max = unique_z.shape[0]
+
+        for z in unique_z:
+            arr_select = self.DataRaw[:, 2] == z
+            obs_v = self.DataRaw[arr_select][:, 3]
+
+            syn_T = self.SynPTVRho[z][:, 0]
+            syn_v = self.SynPTVRho[z][:, 1]
+            syn_rho = self.SynPTVRho[z][:, 2]
+
+            ipkwds = dict(left=-1, right=-1)
+            result_T = np.interp(obs_v, syn_v[::-1], syn_T[::-1], **ipkwds)
+            result_rho = np.interp(obs_v, syn_v[::-1], syn_rho[::-1], **ipkwds)
+            self.Result_T.extend(result_T.tolist())
+            self.Result_Rho.extend(result_rho.tolist())
             j = self.ShowProgress(j, j_max)
-        print '> Done!'
+
+        self.Result_T = np.asarray(self.Result_T)
+        self.Result_Rho = np.asarray(self.Result_Rho)
+
+        print('> Done!')
 
     def CalcVRho(self, z, T):
-        """
-        Calculate velocities based on depth and temperature
+        """Calculate synthetic velocities
 
-        Parameters:
+        Calculate velocities based on depth and temperature.
 
-        * z : double
+        Parameters
+        ----------
+        z : double
             Depth in km
-
-        * T : numpy array
+        T : numpy array
             Array containing temperature values
 
-        Returns:
-
-        * TableVRho : numpy array
+        Returns
+        -------
+        TableVRho : numpy.ndarray
             Array contining V and Rho according for specified z and T
         """
         # Calculate P
         P = self.AK135(z)
         if self.Verbose:
-            print '> z='+str(z)+'km; P='+str(P)+'Pa'
+            print('> z='+str(z)+'km; P='+str(P)+'Pa')
 
         # Calculate mu minerals
         if self.Verbose:
-            print '> Calculate mu minerals'
+            print('> Calculate mu minerals')
         mu_minerals = np.zeros([self.n_Phases, self.nT])
         for i in range(self.n_Phases):
             mu_minerals[i, :] = self.mu[i] + (T - self.T0)*self.dmudT[i] +\
@@ -426,7 +489,7 @@ class MantleConversion:
 
         # Calculate mu rock
         if self.Verbose:
-            print '> Calculate mu rock'
+            print('> Calculate mu rock')
         mu_voigt = np.zeros([self.nT])
         mu_reuss = np.zeros([self.nT])
         for i in range(self.n_Phases):
@@ -437,7 +500,7 @@ class MantleConversion:
 
         # K minerals
         if self.Verbose:
-            print '> Calculate K minerals'
+            print('> Calculate K minerals')
         K_minerals = np.zeros([self.n_Phases, self.nT])
         for i in range(self.n_Phases):
             K_minerals[i, :] = self.K[i] + (T - self.T0)*self.dKdT[i] +\
@@ -447,7 +510,7 @@ class MantleConversion:
         # For P-waves K_rock is required
         if self.VelType == 'P':
             if self.Verbose:
-                print '> Calculate K rock'
+                print('> Calculate K rock')
             K_voigt = np.zeros([self.nT])
             K_reuss = np.zeros([self.nT])
             for i in range(self.n_Phases):
@@ -458,7 +521,7 @@ class MantleConversion:
 
         # Calculate alpha_minerals
         if self.Verbose:
-            print '> Calculate alpha minerals'
+            print('> Calculate alpha minerals')
         alpha_minerals = np.zeros([self.n_Phases, self.nT])
         for i in range(self.n_Phases):
             Tidx = 0
@@ -468,23 +531,23 @@ class MantleConversion:
 
         # Calculate rho minerals
         if self.Verbose:
-            print '> Calculate rho minerals'
+            print('> Calculate rho minerals')
         rho_minerals = np.empty([self.n_Phases, self.nT])
         rho_XFe = self.Rho0 + self.XFe*self.dRhodX
         for i in range(self.n_Phases):
-            rho_minerals[i, :] = (rho_XFe[i]*(1 - alpha_minerals[i, :]*(T -
-                                  self.T0) + (P - self.P0)/K_minerals[i, :]))
+            rho_minerals[i, :] = (rho_XFe[i]*(1 - alpha_minerals[i, :]*(T
+                                  - self.T0) + (P - self.P0)/K_minerals[i, :]))
 
         # Calculate rho rock
         if self.Verbose:
-            print '> Calculate rho rock'
+            print('> Calculate rho rock')
         rho_rock = np.zeros([self.nT])
         for i in range(self.n_Phases):
             rho_rock = rho_rock + self.Composition[i]*rho_minerals[i, :]
 
         # Calculate attenuation
         if self.Verbose:
-            print '> Calculate attenuation'
+            print('> Calculate attenuation')
         Q = np.zeros([self.nT])
         E = self.H + P*self.V
         Q = self.A*(self.omega**self.a)*np.exp((self.a*E)/self.R/T)
@@ -496,7 +559,7 @@ class MantleConversion:
 
         # Calculate v_syn
         if self.Verbose:
-            print '> Calculate v_syn'
+            print('> Calculate v_syn')
         if self.VelType == 'S':
             v_anh = (mu_rock/rho_rock)**0.5
         elif self.VelType == 'P':
@@ -511,23 +574,49 @@ class MantleConversion:
 
         return TableVRho
 
-    def FillTables(self):
-        """
-        Create arrays of V and T for the depths in FileIn. Also loads tables
-        for Alpha(P,T) if necessary. The arrays are stored in the dictionary
-        `self.SynPTVRho`::
+    def DefaultMineralogy(self):
+        """Assign a default mineralogy.
 
-            [
-                { Depth_i   : np.array[T, V, Rho],
-                  Depth_i+1 : np.array[T, V, Rho],
-                  ...}
-            ]
+        Assigns garnet lherzolite by Jordan (1979), the composition is:
+
+        +--------------+------+-------+-------+------+
+        | **Phase**    | ol   | cpx   | opx   | gnt  |
+        +--------------+------+-------+-------+------+
+        | **Fraction** | 0.67 | 0.045 | 0.225 | 0.06 |
+        +--------------+------+-------+-------+------+
+
+        With iron content XFe = 0.11.
+        """
+        assemblage = {
+            "ol": 0.67,
+            "cpx": 0.045,
+            "opx": 0.225,
+            "gnt": 0.06,
+            "XFe": 0.11
+        }
+        print("Assigning default mineralogy garnet lherzolite (Jordan, 1979).")
+        self.SetMineralogy(assemblage)
+
+    def FillTables(self):
+        """Create the lookup tables
+
+        Creates arrays of velocity `V` and temperature `T` at unique depth
+        values of the input file. If necessary, this function also loads the
+        tables for pressure- and temperature dependent thermal expansion
+        coefficients. The arrays are stored in the dictionary `self.SynPTVRho`
+        that has the following internal structure:::
+
+            {
+                Depth_i   : np.array[T, V, Rho],
+                Depth_i+1 : np.array[T, V, Rho],
+                ...
+            }
         """
 
         if self.UseAlpha == 'AlphaPT':
             self.LoadAlphaTables()
 
-        print 'Fill tables'
+        print('Filling tables')
         nDepths = self.Depths.shape[0]
         arr_T = np.linspace(self.Tmin, self.Tmax, self.nT)
         self.SynPTVRho = {}
@@ -537,10 +626,10 @@ class MantleConversion:
         else:
             CalcPType = 'AK135'
 
-        print '> Number of depth values:', nDepths
-        print '> Number of temperatures:', self.nT
-        print '> Pressure calculation  :', CalcPType
-        print '> T range:', self.Tmin, 'to', self.Tmax, 'steps', self.dT
+        print('> Number of depth values:', nDepths)
+        print('> Number of temperatures:', self.nT)
+        print('> Pressure calculation  :', CalcPType)
+        print('> T range:', self.Tmin, 'to', self.Tmax, 'steps', self.dT)
 
         for i in range(nDepths):
             # arr_TVRho contains T and corresponding V
@@ -554,76 +643,76 @@ class MantleConversion:
         """
         Display function help
         """
-        print
-        print "Inverts seismic velocities for temperature and density based"
-        print "on input composition. By default the expansion coefficient is"
-        print "treated as pressure- and temperature-independent."
-        print
-        print "Usage of ", sys.argv[0] + ":"
-        print
-        print "Minimum requirements"
-        print "--------------------"
-        print
-        print sys.argv[0], "FileIn -type <P|S> -comp <Filename>"
-        print "    FileIn"
-        print "        Input file name and path"
-        print "    -type <P|S>"
-        print "        Defines wave type P or S"
-        print "    -comp <Filename>"
-        print "        Comma-separated file containing mantle rock composition"
-        print "    Example"
-        print "       ", sys.argv[0], "Input.dat -type S -comp pyrolite.csv"
-        print "        The output file will be InputOut.dat"
-        print
-        print "Input file requirements"
-        print "-----------------------"
-        print
-        print "    Input file order and units must be: X Y Z V"
-        print "    X Y - Coordinates in any units"
-        print "    Z   - Depth in meters below or above sea level"
-        print "    V   - Seismic velocity in m/s"
-        print "    Can contain header lines if they are marked, i.e. with #"
-        print
-        print "Optional arguments"
-        print "------------------"
-        print
-        print "    -AlphaT"
-        print "        Calculate Alpha based on Temperature after Saxena and"
-        print "        Shen (1992). Default: P/T-independent."
-        print
-        print "    -AlphaPT"
-        print "        Calculate P/T-dependent Alpha based on excel worksheet"
-        print "        from Hacker and Abers (2004). Default: P/T-independent."
-        print
-        print "    -dT"
-        print "        Changes the temperature increment in the P-T tables."
-        print "        Default increment is 1K."
-        print
-        print "    -NN"
-        print "        Output file header information reduced to \# of points"
-        print
-        print "    -out <FileOut>"
-        print "        Define the output path and/or file name"
-        print "        Example: -out ../Output.dat"
-        print
-        print "    -scaleV <value>"
-        print "        Scale the velocity with the given value"
-        print
-        print "    -setQ <1|2>"
-        print "        Define anelasticity parameters after 1 - Sobolev et al."
-        print "        (1996) or 2 - Berckhemer et al. (1982). Default: 1."
-        print "        Example: -setQ 2"
-        print
-        print "    -v | -verbose"
-        print "        Displays debugging messages."
-        print
-        print "    -XFe <XFe> | -xfe <XFe>"
-        print "        Define iron content XFe in mole fractions. Default"
-        print "        value XFe = 0.0"
-        print "        Example: -XFe 0.1"
-        print
-        print "For questions or bug reports contact"
-        print "christian.meessen@gfz-potsdam.de"
+        print()
+        print("Inverts seismic velocities for temperature and density based")
+        print("on input composition. By default the expansion coefficient is")
+        print("treated as pressure- and temperature-independent.")
+        print()
+        print("Usage of ", sys.argv[0] + ":")
+        print()
+        print("Minimum requirements")
+        print("--------------------")
+        print()
+        print(sys.argv[0], "FileIn -type <P|S> -comp <Filename>")
+        print("    FileIn")
+        print("        Input file name and path")
+        print("    -type <P|S>")
+        print("        Defines wave type P or S")
+        print("    -comp <Filename>")
+        print("        Comma-separated file containing mantle rock assemblage")
+        print("    Example")
+        print("       ", sys.argv[0], "Input.dat -type S -comp pyrolite.csv")
+        print("        The output file will be InputOut.dat")
+        print()
+        print("Input file requirements")
+        print("-----------------------")
+        print()
+        print("    Input file order and units must be: X Y Z V")
+        print("    X Y - Coordinates in any units")
+        print("    Z   - Depth in meters below or above sea level")
+        print("    V   - Seismic velocity in m/s")
+        print("    Can contain header lines if they are marked, i.e. with #")
+        print()
+        print("Optional arguments")
+        print("------------------")
+        print()
+        print("    -AlphaT")
+        print("        Calculate Alpha based on Temperature after Saxena and")
+        print("        Shen (1992). Default: const.")
+        print()
+        print("    -AlphaPT")
+        print("        Calculate P/T-dependent Alpha based on excel worksheet")
+        print("        from Hacker and Abers (2004). Default: const.")
+        print()
+        print("    -dT")
+        print("        Changes the temperature increment in the P-T tables.")
+        print("        Default increment is 1K.")
+        print()
+        print("    -NN")
+        print("        Output file header information reduced to # of points")
+        print()
+        print("    -out <FileOut>")
+        print("        Define the output path and/or file name")
+        print("        Example: -out ../Output.dat")
+        print()
+        print("    -scaleV <value>")
+        print("        Scale the velocity with the given value")
+        print()
+        print("    -setQ <1|2>")
+        print("        Define attenuation parameters after 1 - Sobolev et al.")
+        print("        (1996) or 2 - Berckhemer et al. (1982). Default: 1.")
+        print("        Example: -setQ 2")
+        print()
+        print("    -v | -verbose")
+        print("        Displays debugging messages.")
+        print()
+        print("    -XFe <XFe> | -xfe <XFe>")
+        print("        Define iron content XFe in mole fractions. Default")
+        print("        value XFe = 0.0")
+        print("        Example: -XFe 0.1")
+        print()
+        print("For questions or bug reports contact")
+        print("christian.meessen@gfz-potsdam.de")
         sys.exit()
 
     def LoadAlphaTables(self, FileIn='AlphaDB.csv'):
@@ -632,27 +721,25 @@ class MantleConversion:
         that were previously extracted from the worksheet by Hacker and Abers
         (2004, see `./AlphaPT`).
 
-        Parameters:
-
-        * FileIn : string
+        Parameters
+        ----------
+        FileIn : string
             File name of table containing Alpha values. Can be commented with
             '#' and must have a row containing names of the columns. Minimum
             requried columns: P, T, Mineral1, .. IMPORTANT: the data must be
             sorted 1st after T, 2nd after P (descending).
 
-        Output:
-
-        * self.AlphaPT : numpy array
+        Output
+        ------
+        self.AlphaPT : numpy array
             Three-dimensional array where 1st dimension is P, 2nd dimension T
             and 3rd dimension the mineral
-
-        * self.AlphaP : numpy array
+        self.AlphaP : numpy array
             Pressures values corresponding to indices in AlphaPT
-
-        * self.AlphaT : numpy array
+        self.AlphaT : numpy array
             Temperature values corresponding to indices in AlphaPT
         """
-        print "Importing tables for Alpha(P,T)"
+        print("Importing tables for Alpha(P,T)")
         FileIn = self.PyPath + self.FolderSep + FileIn
         AlphaTables = np.genfromtxt(FileIn, names=True, dtype=None,
                                     skip_header=2, delimiter=';')
@@ -672,72 +759,34 @@ class MantleConversion:
         Import mineralogy of the mantle rock from an input file and perform
         checks on the input file.
 
-        Parameters:
-
-        * FileIn : string
+        Parameters
+        ----------
+        FileIn : string
             Input file name and path
-
-        Returns:
-
-        * RawData : numpy.array
-            Structured numpy array containing 'phase' and 'fraction', sorted
-            alphabetically for 'phase'
-
-        * n_phases : integer
-            Number of mineral phases defined
         """
 
         # Load file
         if FileIn is None:
-            print 'No mineralogy defined. Use default mineralogy.'
+            msg = "No mineralogy defined. Using default mineralogy."
+            self.__raise__(Warning, msg)
             self.DefaultMineralogy()
         else:
-            print 'Loading mineralogy', FileIn
+            print('Loading mineralogy', FileIn)
             RawData = np.genfromtxt(FileIn, names=True, dtype=None,
-                                    delimiter=',')
+                                    delimiter=',', encoding='utf8')
 
         # Check if all dtypes known
         ValidDtypes = ['phase', 'fraction']
         for i in RawData.dtype.names:
             if i not in ValidDtypes:
-                print 'ERROR: Invalid data type \"' + i + "\" in", FileIn
-                sys.exit()
-        print '> All datatypes known'
-
-        # Check if last line contains iron content information
-        # Does not overwrite XFe if already defined by command line argument
-        if RawData['phase'][-1] == 'XFe' or RawData['phase'][-1] == 'xfe':
-            if self.XFe is None:
-                self.XFe = float(RawData['fraction'][-1])
-            else:
-                print 'Warning: XFe already defined by command line argument'
-            RawData = np.delete(RawData, -1)
-        else:
-            self.XFe = 0.0
-            print 'Warning: XFe not defined in', FileIn
-        print '> XFe assigned to', self.XFe
-
-        # Check if all mineral phases are known
-        for i in RawData['phase']:
-            if i not in self.MinDB['phase']:
-                print 'ERROR: Unknown mineral phase in', FileIn, ':', i
-                sys.exit()
-        print '> All mineral phases are known'
-
-        # Check if sum of mineral fractions equals 1
-        frac_sum = np.round((np.sum(RawData['fraction'])), decimals=10)
-        if frac_sum != 1.0:
-            print 'ERROR: Sum of mineral phase fractions is ' + str(frac_sum)
-            sys.exit()
-        else:
-            print '> Sum of mineral phases equals 1.0'
+                msg = 'Invalid data type \"' + str(i) + '\" in ' + FileIn
+                self.__raise__(ValueError, msg)
+        print('> All datatypes known')
 
         # Sort alphabetically
-        RawData = np.sort(RawData, order='phase')
-
-        n_phases = len(RawData['phase'])
-
-        return RawData, n_phases
+        self.Mineralogy = RawData
+        self.__check_mineralogy__()
+        self.AssignPhases()
 
     def LoadMineralProperties(self, FileIn=None, delim=';'):
         """
@@ -762,49 +811,57 @@ class MantleConversion:
             alpha2 - Parameterisation for alpha(T) from Saxena and Shen (1992)
             alpha3 - Parameterisation for alpha(T) from Saxena and Shen (1992)
 
-        Parameters:
-
-        * FileIn : String
+        Parameters
+        ----------
+        FileIn : String
             Input file name.
-
-        * delim : String
+        delim : String
             String delimiter.
 
-        Returns:
-
-        * DBase : Numpy Array
+        Returns
+        -------
+        DBase : Numpy Array
             Structured numpy array containing database information.
         """
         if FileIn is None:
             FileIn = self.PyPath + self.FolderSep + 'MinDB.csv'
             if self.Verbose:
-                print "Importing mineral properties from", FileIn
-        DBase = np.genfromtxt(FileIn, names=True, dtype=None, delimiter=delim)
+                print("Importing mineral properties from", FileIn)
+        DBase = np.genfromtxt(FileIn, names=True, dtype=None, delimiter=delim,
+                              encoding='utf8')
         return DBase
 
-    def LoadFile(self):
+    def LoadFile(self, filename=None):
+        """Load an input file
+
+        Load the input file by specifying a `filename`. If `filename` is `None`
+        the file provided in `self.FileIn` will be loaded. The columnar
+        structure of the input file must be::
+
+            x y z v
+
+        where z must be in meters and v in m/s.
+
+        Parameters
+        ----------
+        filename : str
+            The file name.
         """
-        Load the input file given by `self.FileIn`. The structure of input file
-        must be `X Y Z Vel`.
-        """
-        print "Loading input file:", self.FileIn
-        print "> Velocity scale factor is", self.scaleV
+        if self.FileIn is None and filename is not None:
+            self.FileIn = filename
+        if self.FileIn is None:
+            self.__raise__(ValueError, "No input file defined!")
+        print("Loading input file:", self.FileIn)
+        print("> Velocity scale factor is", self.scaleV)
         self.DataRaw = np.loadtxt(self.FileIn)
         # Remove rows below maximum depth, defined by self.MaxDepth
         DelRows = np.where(np.abs(self.DataRaw[:, 2]) >= np.abs(self.MaxDepth))
         if len(DelRows[0]) > 0:
-            print "> Removing depth values beyond", self.MaxDepth, "m."
+            print("> Removing depth values beyond", self.MaxDepth, "m.")
         self.DataRaw = np.delete(self.DataRaw, DelRows, axis=0)
         self.Depths = np.unique(self.DataRaw[:, 2])
         self.DataRaw[:, 3] *= self.scaleV
-        Vmin = np.amin(self.DataRaw[:, 3])
-        if Vmin < 1000:
-            print
-            print "WARNING: Minimum velocity is " + str(Vmin) + "!"
-            print "    The velocity should be in m/s. Use -scaleV to modify " \
-                  "the values on the fly."
-            if raw_input("    Do you want to continue? [N/y]") != "y":
-                sys.exit()
+        self.__check_vmin__()
 
     def ReadArgs(self):
         """
@@ -827,10 +884,7 @@ class MantleConversion:
             elif sys.argv[i] == '-AlphaPT':
                 self.UseAlpha = 'AlphaPT'
             elif sys.argv[i] == '-comp':
-                arg1, arg2 = self.LoadMineralogy(sys.argv[i+1])
-                self.Mineralogy = arg1
-                self.n_Phases = arg2
-                self.AssignPhases()
+                self.LoadMineralogy(sys.argv[i+1])
                 i += 1
             elif sys.argv[i] == '-dT':
                 self.dT = float(sys.argv[i+1])
@@ -855,7 +909,7 @@ class MantleConversion:
                 self.SetXFe(XFe=sys.argv[i+1])
                 i += 1
             else:
-                print "Unknown argument", sys.argv[i]
+                print("Unknown argument", sys.argv[i])
                 self.Usage()
             i += 1
 
@@ -864,17 +918,21 @@ class MantleConversion:
 
         self.TestArgs()
 
-    def SaveFile(self):
+    def SaveFile(self, fileout=None):
+        """Save results to a file
+
+        Save results to a file together with metadata. If `fileout` is not
+        given, will use the file name specified in `self.FileOut`.
         """
-        Save results to an output file.
-        """
+        fileout = fileout or self.FileOut
         StrComment = "# "
         Output = np.empty([self.DataRaw.shape[0], 6])
         Output[:, 0:4] = self.DataRaw[:, 0:4]
         Output[:, 4] = self.Result_T - self.TKelvin
         Output[:, 5] = self.Result_Rho
         Output_h = "Temperature output\n"
-        Output_h += "Input file: " + str(self.FileIn) + "\n"
+        if self.FileIn:
+            Output_h += "Input file: " + str(self.FileIn) + "\n"
         Output_h += "Velocity scale factor: " + str(self.scaleV) + "\n"
         Output_h += "Mantle composition:\n"
         for i in self.Mineralogy:
@@ -902,58 +960,131 @@ class MantleConversion:
         if self.NN:
             Output_h = str(self.DataRaw.shape[0])
             StrComment = ''
-        fmtstring = '%f %f %f %.2f %.1f %.1f'
-        print 'Saving results to', self.FileOut
-        np.savetxt(self.FileOut, Output, header=Output_h, fmt=fmtstring,
+        fmtstring = b'%f %f %f %.2f %.1f %.1f'
+        print('Saving results to', fileout)
+        np.savetxt(fileout, Output, header=Output_h, fmt=fmtstring,
                    comments=StrComment)
-        print '> Done!'
+        print('> Done!')
 
-    def SetQMode(self, Mode):
+    def SetAlpha(self, mode):
+        """Set the dependency of the thermal expansion coefficient.
+
+        If `const`, will use a pressure- and temperature-independent expansion
+        coefficient. The value used is `alpha0` (see `MinDB.csv`). If `T`, the
+        temperature dependency after Saxena and Shen (1992) will be applied. If
+        `PT`, will use a pressure- and temperature-dependent thermal expansion
+        coefficient that was obtained from Hacker and Abers (2004) using the
+        visual basic script in the repository folder `AlphaPT`.
+
+        Parameters
+        ----------
+        mode : str
+            Valid modes are `const`, `T` and `PT`
         """
-        Defines the QMode which is being used for attenuation calculation
+        valid_modes = {
+            'const': 'Alpha',
+            'T': 'AlphaT',
+            'PT': 'AlphaPT'
+        }
+        self.UseAlpha = valid_modes[mode]
+
+    def SetMineralogy(self, assemblage):
+        """Define the mineralogical assemblage
+
+        Manually define the mineralogy.
+
+        Parameters
+        ----------
+        assemblage : dir
+            dir with keys that correspond to the `phase` column in MinDB.csv
+
+        Example
+        -------
+        Example of how to assign the assemblage::
+
+            from VelocityConversion import MantleConversion
+            MC = MantleConversion()
+            assemblage = {
+                "ol": 0.617,
+                "cpx": 0.133,
+                "opx": 0.052,
+                "gnt": 0.153,
+                "jd": 0.045,
+                "XFe": 0.11
+            }
+            MC.SetMineralogy(assemblage)
         """
-        if Mode == '1':
+        names = ['phase', 'fraction']
+        formats = ['U10', 'f8']
+        dtypes = {'names': names, 'formats': formats}
+
+        self.Mineralogy = np.array(list(assemblage.items()), dtype=dtypes)
+        self.__check_mineralogy__()
+        self.AssignPhases()
+
+    def SetQMode(self, mode):
+        """Define the attenuation model
+
+        Defines the QMode which is being used for attenuation.
+
+        Parameters
+        ----------
+        mode : int, str
+            `1` will use the model of Sobolev et al. (1996), `2` will use
+            Berckhemer et al. (1982).
+        """
+        mode = str(mode)
+        if mode == '1':
             self.a = 0.15
             self.A = 0.148
             self.H = 500000.
             self.V = 0.000020
             self.Qmode = 'Sobolev et al. (1996)'
-        elif Mode == '2':
+        elif mode == '2':
             self.a = 0.25
             self.A = 0.0002
             self.H = 584000.
             self.V = 0.000021
             self.Qmode = 'Berckhemer et al. (1982)'
         else:
-            print "ERROR: Unknown Q mode", Mode
-            sys.exit()
-        print "Using Q after", self.Qmode
-        print "    a =", self.a
-        print "    A =", self.A
-        print "    H =", self.H, "J/mol"
-        print "    V =", self.V, "m3/mol"
+            msg = "Unknown attenuation mode " + str(mode)
+            self.__raise__(ValueError, msg)
+        print("Using Q after", self.Qmode)
+        print("    a =", self.a)
+        print("    A =", self.A)
+        print("    H =", self.H, "J/mol")
+        print("    V =", self.V, "m3/mol")
 
-    def SetVelType(self, TypeString):
+    def SetVelType(self, v_type):
+        """Define the wave type.
+
+        This function defines the wave type (`p` or `s`-waves) and sets the
+        wave frequency accordingly. For s-waves, the frequency is set tot 0.02
+        Hz, and for p-waves to 1 Hz.
+
+        Parameters
+        ----------
+        v_type : string
+            `S` or `s` for shear-waves, `P` or `p` for p-waves.
         """
-        Define velocity type and frequency.
-
-        Parameters:
-
-        * TypeString : string
-            S or P for velocity type
-        """
-        if TypeString == 'S' or TypeString == 's':
+        if v_type == 'S' or v_type == 's':
             self.VelType = 'S'
             self.omega = 2*math.pi*0.02
-        elif TypeString == 'P' or TypeString == 'p':
+        elif v_type == 'P' or v_type == 'p':
             self.VelType = 'P'
             self.omega = 2*math.pi*1
         else:
-            raise ValueError('Wrong velocity type', TypeString)
+            msg = "Unknown velocity type " + v_type
+            self.__raise__(ValueError, msg)
 
     def SetXFe(self, XFe=None):
         """
         Define the iron content of the rock.
+
+        Parameters
+        ----------
+        XFe : float
+            The iron content.
         """
         if XFe is None:
             self.XFe = 0
@@ -966,17 +1097,16 @@ class MantleConversion:
         where i is the loop counter. To display the progress during the loop
         and to add counts to i use i=ShowProgress(i, i_max) during the loop.
 
-        Parameters:
-
-        * i_step : int
+        Parameters
+        ----------
+        i_step : int
             Calculation step
-
-        * i_max : int
+        i_max : int
             Maximum calculation step
 
-        Returns:
-
-        * i : int
+        Returns
+        -------
+        i : int
             Initialises i or returns i_step + 1
         """
         if i_step is None:
@@ -1000,38 +1130,37 @@ class MantleConversion:
         """
 
         if self.FileIn is None:
-            print "Error: No input file name given.\nExit!"
-            sys.exit()
+            msg = "No input file name given."
+            self.__raise__(ValueError, msg)
         if self.VelType is None:
-            print "Error: No velocity type given.\nExit!"
-            sys.exit()
+            msg = "Error: No velocity type given."
+            self.__raise__(ValueError, msg)
         if self.UseAlpha == 'Alpha':
-            print "Using constant expansion coefficient"
+            print("Using constant expansion coefficient")
         elif self.UseAlpha == 'AlphaT':
-            print "Using T-dependent expansion coefficient"
+            print("Using T-dependent expansion coefficient")
         elif self.UseAlpha == 'AlphaPT':
-            print "Using P/T-dependent expansion coefficient"
+            print("Using P/T-dependent expansion coefficient")
 
     def Usage(self):
         """
         Print short script usage
         """
-        print
-        print "Usage: Conversion.py FileIn -type <P|S> [optional args]"
-        print "    Optional arguments:"
-        print "        -AlphaT"
-        print "        -AlphaPT"
-        print "        -dT <val>"
-        print "        -comp <Filename>"
-        print "        -h | --help"
-        print "        -NN"
-        print "        -out <FileOut>"
-        print "        -scaleV <value>"
-        print "        -setQ <1|2>"
-        print "        -v | -verbose"
-        print "        -XFe <val>"
-        print "    For more help:", sys.argv[0], "--help"
-        print
+        print()
+        print("Usage: VelocityConversion FileIn -type <P|S> [optional args]")
+        print("    Optional arguments:")
+        print("        -AlphaT")
+        print("        -AlphaPT")
+        print("        -dT <val>")
+        print("        -comp <Filename>")
+        print("        -h | --help")
+        print("        -NN")
+        print("        -out <FileOut>")
+        print("        -scaleV <value>")
+        print("        -setQ <1|2>")
+        print("        -v | -verbose")
+        print("        -XFe <val>")
+        print()
         sys.exit()
 
 

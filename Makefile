@@ -4,8 +4,9 @@ PIP := pip
 help:
 	@echo "Commands:"
 	@echo ""
-	@echo "    pep8          check for PEP8 style compliance"
+	@echo "    pycodestyle          check for code style conventions"
 	@echo ""
 
-pep8:
-	pep8 --show-source --ignore=W503,E226,E241 Conversion.py
+pycodestyle:
+	pycodestyle --show-source --show-pep8 --ignore=W503,E226,E241 VelocityConversion/__init__.py
+
