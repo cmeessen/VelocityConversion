@@ -1,5 +1,7 @@
 # VelocityConversion
 
+[![DOI](https://zenodo.org/badge/87794116.svg)](https://zenodo.org/badge/latestdoi/87794116)
+
 - [VelocityConversion](#VelocityConversion)
   - [Introduction](#Introduction)
   - [Recommended citation for VelocityConversion](#Recommended-citation-for-VelocityConversion)
@@ -28,8 +30,10 @@ original paper by Goes et al. (2000).
 
 ## Recommended citation for VelocityConversion
 
-Meeßen, Christian (2017): VelocityConversion. V. v1.0.1. GFZ Data Services.
-http://doi.org/10.5880/GFZ.6.1.2017.001
+If you use this code, please consider citing it as
+
+> Meeßen, Christian (2019): "VelocityConversion (Version 1.1)". Zenodo,
+> http://doi.org/10.5281/zenodo.3338157.
 
 ## Prerequisites
 
