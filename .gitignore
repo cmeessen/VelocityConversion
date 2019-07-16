@@ -1,4 +1,4 @@
 *.pyc
 velocityconversion_cmeessen.egg-info
 .vscode
-./docs/sphinx/build
+docs/sphinx/build
