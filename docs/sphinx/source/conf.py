@@ -31,7 +31,10 @@ release = '1.1.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
+    'sphinx.ext.githubpages',
     'm2r',
 ]
 
@@ -49,7 +52,6 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
 html_theme = 'nature'
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -61,8 +63,9 @@ html_static_path = ['_static']
 # unit titles (such as .. function::).
 add_module_names = False
 
-# Napoleon settings
+# -- sphinx.ext.napoleon -----------------------------------------------------
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 napoleon_use_admonition_for_examples = False
 napoleon_use_ivar = True
+

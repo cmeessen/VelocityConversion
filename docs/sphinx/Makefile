@@ -3,6 +3,7 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
+SHELL         := /bin/bash -O extglob
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
@@ -19,6 +20,12 @@ help:
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-gh-pages:
-	mv ./build/html/* ../
+gh-pages: | gh-pages-clean gh-pages-copy
+	echo "Done!"
+
+gh-pages-clean:
+	cd ../; rm -fr -- !(sphinx)
+
+gh-pages-copy:
+	cp -r build/html/. ../
 
