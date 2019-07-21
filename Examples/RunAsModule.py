@@ -13,7 +13,7 @@ where the columns are [x, y, z, v]. In this case, the array has to be assigned
 to DataRaw, for example:
 
 >> SomeArray = np.zeros([10,4])
->> MC.DataRaw = SomeArray
+>> MC.LoadArray(SomeArray)
 """
 
 # Set Velocity type

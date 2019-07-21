@@ -2,3 +2,4 @@
 velocityconversion_cmeessen.egg-info
 .vscode
 docs/sphinx/build
+Examples/VsSL2013_*.dat

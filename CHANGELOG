@@ -9,6 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Support for usage of VelocityConversion as a Python module.
 - This CHANGELOG.
 - Function `DefaultMineralogy()`.
+- Added encoding, copyright and license disclaimers.
+- Added option `-dT` to manually adjust the temperature stepping.
+- Added option `-scaleV` to apply a scaling factor to the input velocities.
+- Added warning if velocities are in km/s instead of m/s.
+- Added LoadArray().
 
 ### Changed
 - The function `CalcPT()` was improved. Instead of manually performing the
@@ -17,21 +22,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   more performant.
 - Updated README.md.
 - Migrated from pep8 to pycodestyle.
-
-## [unreleased] - 2017-11-15
-### Added
-- Added encoding, copyright and license disclaimers.
-
-## [unreleased] - 2017-10-26
-### Added
-- Added option `-dT` to manually adjust the temperature stepping.
-
-## [unreleased] - 2017-10-05
-### Added
-- Added option `-scaleV` to apply a scaling factor to the input velocities.
-- Added warning if velocities are in km/s instead of m/s.
-
-### Changed
 - Fixed a bug in clearing depth values beyond the stored AK135 values.
 
 ## [1.0.1] - 2017-06-22

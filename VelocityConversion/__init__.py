@@ -754,6 +754,35 @@ class MantleConversion:
             i_phase = self.Mineralogy['phase'][i]
             self.AlphaPT[:, :, i] = np.reshape(AlphaTables[i_phase], (nP, nT))
 
+    def LoadArray(self, array):
+        """Load a numpy array as input data
+
+        Load a numpy array of shape `[nrows, 4]`. The columns of the array
+        should be:
+
+            +---+---+-------+---------+
+            | X | Y | Z / m | V / m/s |
+            +---+---+-------+---------+
+
+        Parameters
+        ----------
+        array : numpy.array
+            The data array.
+
+        """
+        if array.shape[1] != 4:
+            msg = "Incorrect numbers of columns in input array."
+            raise ValueError(msg)
+        self.DataRaw = array
+        # Remove rows below maximum depth, defined by self.MaxDepth
+        DelRows = np.where(np.abs(self.DataRaw[:, 2]) >= np.abs(self.MaxDepth))
+        if len(DelRows[0]) > 0:
+            print("> Removing depth values beyond", self.MaxDepth, "m.")
+        self.DataRaw = np.delete(self.DataRaw, DelRows, axis=0)
+        self.Depths = np.unique(self.DataRaw[:, 2])
+        self.DataRaw[:, 3] *= self.scaleV
+        self.__check_vmin__()
+
     def LoadMineralogy(self, FileIn=None):
         """
         Import mineralogy of the mantle rock from an input file and perform
@@ -853,15 +882,7 @@ class MantleConversion:
             self.__raise__(ValueError, "No input file defined!")
         print("Loading input file:", self.FileIn)
         print("> Velocity scale factor is", self.scaleV)
-        self.DataRaw = np.loadtxt(self.FileIn)
-        # Remove rows below maximum depth, defined by self.MaxDepth
-        DelRows = np.where(np.abs(self.DataRaw[:, 2]) >= np.abs(self.MaxDepth))
-        if len(DelRows[0]) > 0:
-            print("> Removing depth values beyond", self.MaxDepth, "m.")
-        self.DataRaw = np.delete(self.DataRaw, DelRows, axis=0)
-        self.Depths = np.unique(self.DataRaw[:, 2])
-        self.DataRaw[:, 3] *= self.scaleV
-        self.__check_vmin__()
+        self.LoadArray(np.loadtxt(self.FileIn))
 
     def ReadArgs(self):
         """
