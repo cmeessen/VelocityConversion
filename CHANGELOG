@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added option `-scaleV` to apply a scaling factor to the input velocities.
 - Added warning if velocities are in km/s instead of m/s.
 - Added LoadArray().
+- Added tests with unittest.
 
 ### Changed
 - The function `CalcPT()` was improved. Instead of manually performing the
