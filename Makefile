@@ -10,3 +10,6 @@ help:
 pycodestyle:
 	pycodestyle --show-source --show-pep8 --ignore=W503,E226,E241 VelocityConversion/__init__.py
 
+docs:
+	cd docs/sphinx && make html
+
