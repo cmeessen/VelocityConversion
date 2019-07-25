@@ -47,6 +47,8 @@ import platform
 from warnings import warn
 import __main__
 
+__version__ = '1.1.1-rc1'
+
 
 class MantleConversion:
     """The conversion class
