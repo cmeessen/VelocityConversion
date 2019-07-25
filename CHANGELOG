@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+### Added
+- Version number is defined within `VelocityConversion/__init__.py` and is being
+  read when building the documentation.
+- The density for the simple pressure calculation can now be defined by
+  declaring the variable `SimpleRho`.
+- Function `Convert()` for convenience when using VelocityConversion as a Python
+  module.
+
+### Changed
+- Enhanced the documentation.
+
 ## [1.1.0] - 2019-07-16
 ### Added
 - Python 3 support.
