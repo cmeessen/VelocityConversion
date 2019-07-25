@@ -87,6 +87,7 @@ class MantleConversion:
         # Rock properties
         self.Composition = None
         self.XFe = None
+        self.SimpleRho = 3000.  # Density kg/m3 for simple pressure computation
 
         # Initialise mineral database
         self.MinDB = self.LoadMineralProperties()
@@ -244,7 +245,7 @@ class MantleConversion:
             return Pressure
         else:
             self.SimpleP = True
-            return 3000.*self.g*np.absolute(depth)
+            return self.SimpleRho*self.g*np.absolute(depth)
 
     def Alpha(self, P, T, Mineral, p=4.0):
         """Return the thermal expansion coefficient
@@ -963,6 +964,8 @@ class MantleConversion:
         Output_h += "XFe - " + str(self.XFe) + "\n"
         if self.SimpleP:
             Output_h += "Pressure calculation: Simplified\n"
+            Output_h += "Pressure calculation density: " + str(self.SimpleRho)
+            Output_h += " kg/m3\n"
         else:
             Output_h += "Pressure calculation: AK135\n"
         Output_h += "Wave frequency (Omega) / Hz: " + str(self.f) + "\n"
