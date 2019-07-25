@@ -577,6 +577,15 @@ class MantleConversion:
 
         return TableVRho
 
+    def Convert(self):
+        """A convenience function to start the converion.
+
+        Calls :meth:`~.FillTables` and :meth:`~.CalcPT`.
+
+        """
+        self.FillTables()
+        self.CalcPT()
+
     def DefaultMineralogy(self):
         """Assign a default mineralogy.
 
