@@ -1,1 +1,3 @@
+.. _changelog:
+
 .. mdinclude:: ../../../CHANGELOG
