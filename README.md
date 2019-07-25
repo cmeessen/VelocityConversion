@@ -50,6 +50,26 @@ repository:
 git clone https://github.com/cmeessen/VelocityConversion.git
 ```
 
+To check whether everything is working run the tests
+
+```bash
+python test.py
+```
+
+If the output looks like this, everything is working fine:
+
+```
+test_vp_AlphaConst (__main__.TestVelocityConversion) ... ok
+test_vs_AlphaConst (__main__.TestVelocityConversion) ... ok
+test_vs_AlphaPT (__main__.TestVelocityConversion) ... ok
+test_vs_AlphaT (__main__.TestVelocityConversion) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.633s
+
+OK
+```
+
 ### Usage as command line tool
 
 In order to use the code as command line tool, add the `./Examples` directory

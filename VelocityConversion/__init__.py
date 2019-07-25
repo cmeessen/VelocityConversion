@@ -47,6 +47,8 @@ import platform
 from warnings import warn
 import __main__
 
+__version__ = '1.1.1-rc1'
+
 
 class MantleConversion:
     """The conversion class
@@ -85,6 +87,7 @@ class MantleConversion:
         # Rock properties
         self.Composition = None
         self.XFe = None
+        self.SimpleRho = 3000.  # Density kg/m3 for simple pressure computation
 
         # Initialise mineral database
         self.MinDB = self.LoadMineralProperties()
@@ -242,7 +245,7 @@ class MantleConversion:
             return Pressure
         else:
             self.SimpleP = True
-            return 3000.*self.g*np.absolute(depth)
+            return self.SimpleRho*self.g*np.absolute(depth)
 
     def Alpha(self, P, T, Mineral, p=4.0):
         """Return the thermal expansion coefficient
@@ -574,6 +577,15 @@ class MantleConversion:
 
         return TableVRho
 
+    def Convert(self):
+        """A convenience function to start the converion.
+
+        Calls :meth:`~.FillTables` and :meth:`~.CalcPT`.
+
+        """
+        self.FillTables()
+        self.CalcPT()
+
     def DefaultMineralogy(self):
         """Assign a default mineralogy.
 
@@ -754,6 +766,35 @@ class MantleConversion:
             i_phase = self.Mineralogy['phase'][i]
             self.AlphaPT[:, :, i] = np.reshape(AlphaTables[i_phase], (nP, nT))
 
+    def LoadArray(self, array):
+        """Load a numpy array as input data
+
+        Load a numpy array of shape `[nrows, 4]`. The columns of the array
+        should be:
+
+            +---+---+-------+---------+
+            | X | Y | Z / m | V / m/s |
+            +---+---+-------+---------+
+
+        Parameters
+        ----------
+        array : numpy.array
+            The data array.
+
+        """
+        if array.shape[1] != 4:
+            msg = "Incorrect numbers of columns in input array."
+            raise ValueError(msg)
+        self.DataRaw = array
+        # Remove rows below maximum depth, defined by self.MaxDepth
+        DelRows = np.where(np.abs(self.DataRaw[:, 2]) >= np.abs(self.MaxDepth))
+        if len(DelRows[0]) > 0:
+            print("> Removing depth values beyond", self.MaxDepth, "m.")
+        self.DataRaw = np.delete(self.DataRaw, DelRows, axis=0)
+        self.Depths = np.unique(self.DataRaw[:, 2])
+        self.DataRaw[:, 3] *= self.scaleV
+        self.__check_vmin__()
+
     def LoadMineralogy(self, FileIn=None):
         """
         Import mineralogy of the mantle rock from an input file and perform
@@ -853,15 +894,7 @@ class MantleConversion:
             self.__raise__(ValueError, "No input file defined!")
         print("Loading input file:", self.FileIn)
         print("> Velocity scale factor is", self.scaleV)
-        self.DataRaw = np.loadtxt(self.FileIn)
-        # Remove rows below maximum depth, defined by self.MaxDepth
-        DelRows = np.where(np.abs(self.DataRaw[:, 2]) >= np.abs(self.MaxDepth))
-        if len(DelRows[0]) > 0:
-            print("> Removing depth values beyond", self.MaxDepth, "m.")
-        self.DataRaw = np.delete(self.DataRaw, DelRows, axis=0)
-        self.Depths = np.unique(self.DataRaw[:, 2])
-        self.DataRaw[:, 3] *= self.scaleV
-        self.__check_vmin__()
+        self.LoadArray(np.loadtxt(self.FileIn))
 
     def ReadArgs(self):
         """
@@ -940,6 +973,8 @@ class MantleConversion:
         Output_h += "XFe - " + str(self.XFe) + "\n"
         if self.SimpleP:
             Output_h += "Pressure calculation: Simplified\n"
+            Output_h += "Pressure calculation density: " + str(self.SimpleRho)
+            Output_h += " kg/m3\n"
         else:
             Output_h += "Pressure calculation: AK135\n"
         Output_h += "Wave frequency (Omega) / Hz: " + str(self.f) + "\n"

@@ -1,0 +1,17 @@
+name: velco
+channels:
+    - defaults
+    - conda-forge
+dependencies:
+    - python=3.*
+    - pip
+    - numpy
+    - flake8
+    - pydocstyle
+    - ipython
+    - pep8
+    - sphinx
+    - sphinx_rtd_theme
+    - doc8
+    - m2r
+    - coverage

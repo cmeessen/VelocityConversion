@@ -22,7 +22,9 @@ copyright = '2019, Christian Meeßen'
 author = 'Christian Meeßen'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.0'
+from VelocityConversion import __version__
+version = __version__
+release = version
 
 
 # -- General configuration ---------------------------------------------------
@@ -35,6 +37,10 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
     'sphinx.ext.githubpages',
+    'sphinx.ext.doctest',
+    'IPython.sphinxext.ipython_console_highlighting',
+    'IPython.sphinxext.ipython_directive',
+    'matplotlib.sphinxext.plot_directive',
     'm2r',
 ]
 
@@ -52,7 +58,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'nature'
+html_theme = 'sphinx_rtd_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -63,9 +69,46 @@ html_static_path = ['_static']
 # unit titles (such as .. function::).
 add_module_names = False
 
+# -- sphinx_rtd_theme --------------------------------------------------------
+
+html_theme_options = {
+    'canonical_url': '',
+    'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': False,
+    # 'vcs_pageview_mode': '',
+    # 'style_nav_header_background': 'white',
+    # Toc options
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False
+}
+
+html_context = {
+    'display_github': True,
+    'github_user': 'cmeessen',
+    'github_repo': 'pyGMS',
+    'github_version': 'master/docs/sphinx',
+    'menu_links_name': 'More',
+    'menu_links': [
+        ('<i class="fa fa-github fw"></i> GitHub repository', 'https://github.com/cmeessen/VelocityConversion'),
+        ('<i class="fa fa-bug fw"></i> Open an issue', 'https://github.com/cmeessen/VelocityConversion/issues/new'),
+        ('<i class="fa fa-quote-left fw"></i> Cite VelocityConversion', 'https://www.zenodo.org/badge/latestdoi/87794116')
+    ]
+}
+
 # -- sphinx.ext.napoleon -----------------------------------------------------
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 napoleon_use_admonition_for_examples = False
 napoleon_use_ivar = True
 
+# -- copybutton --------------------------------------------------------------
+def setup(app):
+    """Adds copy buttons to code blocks, code location in ./_static"""
+    app.add_stylesheet('copy_button.css')
+    app.add_javascript('copy_button.js')
+    app.add_javascript('clipboard.js')
