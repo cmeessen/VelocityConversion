@@ -7,7 +7,46 @@ Prerequisites
 -------------
 
 :mod:`VelocityConversion` requires Python 2.7 or 3, and a few modules.
-I recommend to use Python 3 and `Anaconda <https://continuum.io>`_.
+I recommend to use Python 3 and `Pipenv <https://github.com/pypa/pipenv>`_.
+
+With pipenv
+~~~~~~~~~~~
+
+The advantage of pipenv is, that all dependencies and their versions are
+specified in the ``Pipfile.lock``. Pipenv will create an environment where all
+necessary packages will be installed. To install dependencies with pipenv,
+navigate to the project root folder, and run
+
+.. code-block:: bash
+
+    pipenv install
+
+To install other dependencies required to compile the documentation, run:
+
+.. code-block:: bash
+
+    pipenv install --dev
+
+Enter the environment in the terminal by running
+
+.. code-block:: bash
+
+    pipenv shell
+
+With pip
+~~~~~~~~~
+
+or if you are using a Python version other than Anaconda:
+
+.. code-block:: bash
+
+    pip install numpy
+
+and to be able to compile the documentation:
+
+.. code-block:: bash
+
+    pip install sphinx m2r sphinx_rtd_theme
 
 With Anaconda
 ~~~~~~~~~~~~~
@@ -25,24 +64,8 @@ required:
 
     conda install -c conda-forge ipython sphinx m2r sphinx_rtd_theme
 
-With pip
-~~~~~~~~~
-
-or if you are using a Python version other than Anaconda:
-
-.. code-block:: bash
-
-    pip install numpy
-
-and to be able to compile the documentation:
-
-.. code-block:: bash
-
-    pip install sphinx m2r sphinx_rtd_theme
-
-
-Installing
-----------
+Installation
+------------
 
 :mod:`VelocityConversion` can be used both as a command line tool and as a
 Python module. In both cases, the first step is to create a clone or download
@@ -54,10 +77,18 @@ the repository.
 
 and install it with
 
-.. code-block::
+.. code-block:: bash
 
     pip install .
 
+You can also use :mod:`VelocityConversion` without installing it. In this case,
+you need to add the path of the ``./VelocityConversion`` folder to the system
+path when importing the module:
+
+.. code-block:: python
+
+    import sys
+    sys.path.append('../path/to/gitrepo')
 
 Run tests
 ~~~~~~~~~~
