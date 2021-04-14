@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from VelocityConversion import MantleConversion
+from VelocityConversion import MantleConversion, UnavailableMethodError
 
 def assemblage():
     a = {
@@ -38,14 +38,9 @@ class TestVelocityConversion(unittest.TestCase):
 
     def test_vs_AlphaPT(self):
         MC = MantleConversion()
-        MC.LoadArray(np.array([[0, 0, -50e3, 4287.65]]))
-        MC.SetAlpha('PT')
-        MC.SetVelType('S')
-        MC.SetMineralogy(assemblage())
-        MC.FillTables()
-        MC.CalcPT()
-        self.assertAlmostEqual(MC.Result_T[0], 1319.45, 1)
-        self.assertAlmostEqual(MC.Result_Rho[0], 3287.0, 1)
+        with self.assertRaises(UnavailableMethodError):
+            MC.SetAlpha('PT')
+
 
     def test_vp_AlphaConst(self):
         MC = MantleConversion()

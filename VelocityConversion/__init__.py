@@ -50,6 +50,11 @@ import __main__
 __version__ = '1.1.1-rc1'
 
 
+class UnavailableMethodError(Exception):
+    """Raise when trying to use AlphaPT"""
+    pass
+
+
 class MantleConversion:
     """The conversion class
 
@@ -916,6 +921,9 @@ class MantleConversion:
                 self.UseAlpha = 'AlphaT'
             elif sys.argv[i] == '-AlphaPT':
                 self.UseAlpha = 'AlphaPT'
+                raise UnavailableMethodError(
+                    "This method is currently not avilable."
+                )
             elif sys.argv[i] == '-comp':
                 self.LoadMineralogy(sys.argv[i+1])
                 i += 1
