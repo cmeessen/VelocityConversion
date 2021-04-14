@@ -40,6 +40,19 @@ If you use this code, please consider citing it as
 This code requires an installation of Python 3.x and numpy.
 Building the documentation furthermore requires sphinx and m2r.
 
+You can use [`pipenv`](https://pypi.org/project/pipenv/) to create an
+environment:
+
+```bash
+pipenv install
+```
+
+ctivate the environment via
+
+```bash
+pipenv shell
+```
+
 ## How to get started
 
 The code can be used either as a command line tool or as a module within
@@ -153,6 +166,12 @@ MC.SaveFile("./Examples/VsSL2013_out.dat")
 For a more complete documentation on how to use `VelocityConversion` as a Python
 module please visit the
 [documentation](https://cmeessen.github.io/VelocityConversion/).
+
+To uninstall `VelocityConversion`, run
+
+```bash
+pip uninstall velocityconversion-cmeessen
+```
 
 ## Modifying physical properties of the minerals
 
