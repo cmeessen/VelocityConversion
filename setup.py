@@ -1,12 +1,12 @@
 from setuptools import setup
 from setuptools import find_packages
 from pkg_resources import resource_filename
+from VelocityConversion import __version__ as VERSION
 
 
 # METADATA
 NAME = 'velocityconversion-cmeessen'
 MODULE = 'VelocityConversion'
-VERSION = '1.1.0'
 AUTHOR = 'Christian Meeßen'
 AUTHOR_EMAIL = 'christian.meessen@gfz-potsdam.de'
 MAINTAINER = 'Christian Meeßen'
