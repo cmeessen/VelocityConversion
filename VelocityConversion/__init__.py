@@ -78,7 +78,7 @@ class MantleConversion:
         self.Verbose = False
         self.SimpleP = False
         self.NN = False
-        self.UseAlpha = 'Alpha'
+        self._UseAlpha = 'Alpha'
         self.VelType = None
         self.scaleV = 1.
 
@@ -208,6 +208,25 @@ class MantleConversion:
 
         self.Mineralogy = np.sort(self.Mineralogy, order='phase')
         self.n_Phases = len(self.Mineralogy['phase'])
+
+    @property
+    def UseAlpha(self):
+        """Property that defines how Alpha is computed"""
+        return self._UseAlpha
+
+    @UseAlpha.setter
+    def UseAlpha(self, mode):
+        valid_modes = {
+            'const': 'Alpha',
+            'T': 'AlphaT',
+        #    'PT': 'AlphaPT'  # Deactivate due to unsolved issues
+        }
+        try:
+            self._UseAlpha = valid_modes[mode]
+        except KeyError:
+            raise UnavailableMethodError(
+                f"This method for computation of Alpha is not available: {mode}"
+        )
 
     def AK135(self, depth, simple=False):
         """
@@ -483,7 +502,7 @@ class MantleConversion:
             Array contining V and Rho according for specified z and T
         """
         # Calculate P
-        P = self.AK135(z)
+        P = self.AK135(z, self.SimpleP)
         if self.Verbose:
             print('> z='+str(z)+'km; P='+str(P)+'Pa')
 
@@ -918,12 +937,9 @@ class MantleConversion:
         i = 2
         while i < n_args:
             if sys.argv[i] == '-AlphaT':
-                self.UseAlpha = 'AlphaT'
+                self.UseAlpha = 'T'
             elif sys.argv[i] == '-AlphaPT':
-                self.UseAlpha = 'AlphaPT'
-                raise UnavailableMethodError(
-                    "This method is currently not avilable."
-                )
+                self.UseAlpha = 'PT'
             elif sys.argv[i] == '-comp':
                 self.LoadMineralogy(sys.argv[i+1])
                 i += 1
@@ -1024,12 +1040,7 @@ class MantleConversion:
         mode : str
             Valid modes are `const`, `T` and `PT`
         """
-        valid_modes = {
-            'const': 'Alpha',
-            'T': 'AlphaT',
-            'PT': 'AlphaPT'
-        }
-        self.UseAlpha = valid_modes[mode]
+        self.UseAlpha = mode
 
     def SetMineralogy(self, assemblage):
         """Define the mineralogical assemblage
