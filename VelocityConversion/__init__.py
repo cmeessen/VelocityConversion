@@ -16,26 +16,6 @@
 #     You should have received a copy of the GNU General Public License       #
 #  along with VelocityConversion. If not, see <http://www.gnu.org/licenses/>. #
 ###############################################################################
-"""
-This code is a python implementation of the p- and s-wave velocity to density
-conversion approach after Goes et al. (2000)
-
-Recommended citation
-====================
-
-> Meeßen, Christian (2017): VelocityConversion. V. v1.0.1. GFZ Data Services.
-> http://doi.org/10.5880/GFZ.6.1.2017.001
-
-Contact
-=======
-
-For questions or suggestions please contact
-
-| Christian Meeßen
-| Section 4.5 Basin Modelling
-| GFZ Potsdam
-| christian.meessen@gfz-potsdam.de
-"""
 
 from __future__ import print_function, unicode_literals
 import numpy as np
@@ -47,7 +27,7 @@ import platform
 from warnings import warn
 import __main__
 
-__version__ = '1.1.1-rc1'
+__version__ = '1.1.1'
 
 
 class UnavailableMethodError(Exception):
