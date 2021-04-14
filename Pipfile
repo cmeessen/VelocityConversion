@@ -14,8 +14,9 @@ pep8 = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
 doc8 = "*"
-m2r = "*"
 coverage = "*"
+matplotlib = "*"
+m2r2 = "*"
 
 [requires]
 python_version = "3.9"
