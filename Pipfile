@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+numpy = "*"
+
+[dev-packages]
+flake8 = "*"
+pydocstyle = "*"
+ipython = "*"
+pep8 = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
+doc8 = "*"
+coverage = "*"
+matplotlib = "*"
+m2r2 = "*"
+
+[requires]
+python_version = "3.9"

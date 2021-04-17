@@ -1,12 +1,12 @@
 from setuptools import setup
 from setuptools import find_packages
 from pkg_resources import resource_filename
+from VelocityConversion import __version__ as VERSION
 
 
 # METADATA
 NAME = 'velocityconversion-cmeessen'
 MODULE = 'VelocityConversion'
-VERSION = '1.1.0'
 AUTHOR = 'Christian Meeßen'
 AUTHOR_EMAIL = 'christian.meessen@gfz-potsdam.de'
 MAINTAINER = 'Christian Meeßen'
@@ -20,7 +20,11 @@ except ImportError:
     with open('README.md') as fh:
         LONG_DESCRIPTION = fh.read()
 LONG_DESCRIPTION_TYPE = 'text/markdown'
-PACKAGE_DATA = find_packages()
+
+PACKAGES=[MODULE]
+PACKAGE_DIR={MODULE: MODULE}
+PACKAGE_DATA={MODULE: ['*.csv']}
+
 CLASSIFIERS = [
     'Natural Language :: English',
     'Programming Language :: Python :: 2'
@@ -49,7 +53,11 @@ if __name__ == '__main__':
         long_description=LONG_DESCRIPTION,
         long_description_content_type=LONG_DESCRIPTION_TYPE,
         url=URL,
-        packages=PACKAGE_DATA,
+        # packages=find_packages(),
+        packages=PACKAGES,
+        package_dir=PACKAGE_DIR,
+        package_data=PACKAGE_DATA,
+        use_package_data=True,
         classifiers=CLASSIFIERS,
         install_requires=INSTALL_REQUIRES,
     )

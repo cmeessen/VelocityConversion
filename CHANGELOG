@@ -3,17 +3,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [1.1.1] - 2021-04-17
 ### Added
 - Version number is defined within `VelocityConversion/__init__.py` and is being
-  read when building the documentation.
+  read when building the documentation and installing via `pip`.
+- Added support for pipenv.
 - The density for the simple pressure calculation can now be defined by
   declaring the variable `SimpleRho`.
-- Function `Convert()` for convenience when using VelocityConversion as a Python
-  module.
+- Function `Convert()` for convenience when using VelocityConversion as a
+  Python module.
+- Added `UnavailableMethodError` when user want to use pressure- and
+  temperature-dependent expansion coefficient (`-AlphaPT`), since this method
+  is currently buggy.
 
 ### Changed
 - Enhanced the documentation.
+- Use getter and setter for `UseAlpha` variable.
+
+### Fixed
+- Fixed a bug where the csv tables were not copied when using `pip install .`.
+- Fixed an issue where pressure would not be computed with the simple method.
 
 ## [1.1.0] - 2019-07-16
 ### Added

@@ -16,26 +16,6 @@
 #     You should have received a copy of the GNU General Public License       #
 #  along with VelocityConversion. If not, see <http://www.gnu.org/licenses/>. #
 ###############################################################################
-"""
-This code is a python implementation of the p- and s-wave velocity to density
-conversion approach after Goes et al. (2000)
-
-Recommended citation
-====================
-
-> Meeßen, Christian (2017): VelocityConversion. V. v1.0.1. GFZ Data Services.
-> http://doi.org/10.5880/GFZ.6.1.2017.001
-
-Contact
-=======
-
-For questions or suggestions please contact
-
-| Christian Meeßen
-| Section 4.5 Basin Modelling
-| GFZ Potsdam
-| christian.meessen@gfz-potsdam.de
-"""
 
 from __future__ import print_function, unicode_literals
 import numpy as np
@@ -47,7 +27,12 @@ import platform
 from warnings import warn
 import __main__
 
-__version__ = '1.1.1-rc1'
+__version__ = '1.1.1'
+
+
+class UnavailableMethodError(Exception):
+    """Raise when trying to use AlphaPT"""
+    pass
 
 
 class MantleConversion:
@@ -73,7 +58,7 @@ class MantleConversion:
         self.Verbose = False
         self.SimpleP = False
         self.NN = False
-        self.UseAlpha = 'Alpha'
+        self._UseAlpha = 'Alpha'
         self.VelType = None
         self.scaleV = 1.
 
@@ -203,6 +188,25 @@ class MantleConversion:
 
         self.Mineralogy = np.sort(self.Mineralogy, order='phase')
         self.n_Phases = len(self.Mineralogy['phase'])
+
+    @property
+    def UseAlpha(self):
+        """Property that defines how Alpha is computed"""
+        return self._UseAlpha
+
+    @UseAlpha.setter
+    def UseAlpha(self, mode):
+        valid_modes = {
+            'const': 'Alpha',
+            'T': 'AlphaT',
+        #    'PT': 'AlphaPT'  # Deactivate due to unsolved issues
+        }
+        try:
+            self._UseAlpha = valid_modes[mode]
+        except KeyError:
+            raise UnavailableMethodError(
+                f"This method for computation of Alpha is not available: {mode}"
+        )
 
     def AK135(self, depth, simple=False):
         """
@@ -478,7 +482,7 @@ class MantleConversion:
             Array contining V and Rho according for specified z and T
         """
         # Calculate P
-        P = self.AK135(z)
+        P = self.AK135(z, self.SimpleP)
         if self.Verbose:
             print('> z='+str(z)+'km; P='+str(P)+'Pa')
 
@@ -913,9 +917,9 @@ class MantleConversion:
         i = 2
         while i < n_args:
             if sys.argv[i] == '-AlphaT':
-                self.UseAlpha = 'AlphaT'
+                self.UseAlpha = 'T'
             elif sys.argv[i] == '-AlphaPT':
-                self.UseAlpha = 'AlphaPT'
+                self.UseAlpha = 'PT'
             elif sys.argv[i] == '-comp':
                 self.LoadMineralogy(sys.argv[i+1])
                 i += 1
@@ -1016,12 +1020,7 @@ class MantleConversion:
         mode : str
             Valid modes are `const`, `T` and `PT`
         """
-        valid_modes = {
-            'const': 'Alpha',
-            'T': 'AlphaT',
-            'PT': 'AlphaPT'
-        }
-        self.UseAlpha = valid_modes[mode]
+        self.UseAlpha = mode
 
     def SetMineralogy(self, assemblage):
         """Define the mineralogical assemblage

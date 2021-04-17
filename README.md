@@ -2,16 +2,16 @@
 
 [![DOI](https://zenodo.org/badge/87794116.svg)](https://zenodo.org/badge/latestdoi/87794116)
 
-- [VelocityConversion](#VelocityConversion)
-  - [Introduction](#Introduction)
-  - [Recommended citation for VelocityConversion](#Recommended-citation-for-VelocityConversion)
-  - [Prerequisites](#Prerequisites)
-  - [How to get started](#How-to-get-started)
-    - [Usage as command line tool](#Usage-as-command-line-tool)
-    - [Usage as a Python module](#Usage-as-a-Python-module)
-  - [Modifying physical properties of the minerals](#Modifying-physical-properties-of-the-minerals)
-  - [References](#References)
-  - [Licence](#Licence)
+- [VelocityConversion](#velocityconversion)
+  - [Introduction](#introduction)
+  - [Recommended citation for VelocityConversion](#recommended-citation-for-velocityconversion)
+  - [Prerequisites](#prerequisites)
+  - [How to get started](#how-to-get-started)
+    - [Usage as command line tool](#usage-as-command-line-tool)
+    - [Usage as a Python module](#usage-as-a-python-module)
+  - [Modifying physical properties of the minerals](#modifying-physical-properties-of-the-minerals)
+  - [References](#references)
+  - [Licence](#licence)
 
 ## Introduction
 
@@ -40,6 +40,19 @@ If you use this code, please consider citing it as
 This code requires an installation of Python 3.x and numpy.
 Building the documentation furthermore requires sphinx and m2r.
 
+You can use [`pipenv`](https://pypi.org/project/pipenv/) to create an
+environment:
+
+```bash
+pipenv install
+```
+
+ctivate the environment via
+
+```bash
+pipenv shell
+```
+
 ## How to get started
 
 The code can be used either as a command line tool or as a module within
@@ -48,6 +61,13 @@ repository:
 
 ```bash
 git clone https://github.com/cmeessen/VelocityConversion.git
+```
+
+or, if you haven an [SSH key](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+associated to your account:
+
+```bash
+git clone git@github.com:cmeessen/VelocityConversion.git
 ```
 
 To check whether everything is working run the tests
@@ -76,7 +96,7 @@ In order to use the code as command line tool, add the `./Examples` directory
 to your `PATH`, e.g. in your bash profile:
 
 ```bash
-export PATH=/path/to/VelocityConversion/Examples
+export PATH=/path/to/VelocityConversion/Examples:$PATH
 ```
 
 Alternatively you can move the bash script
@@ -146,6 +166,12 @@ MC.SaveFile("./Examples/VsSL2013_out.dat")
 For a more complete documentation on how to use `VelocityConversion` as a Python
 module please visit the
 [documentation](https://cmeessen.github.io/VelocityConversion/).
+
+To uninstall `VelocityConversion`, run
+
+```bash
+pip uninstall velocityconversion-cmeessen
+```
 
 ## Modifying physical properties of the minerals
 

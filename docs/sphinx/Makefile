@@ -27,6 +27,6 @@ gh-pages-clean:
 	cd ../; rm -fr -- !(sphinx)
 
 gh-pages-copy:
-	rm fileout.dat
+	if [ -f fileout.dat ]; then rm fileout.dat; fi
 	cp -r build/html/. ../
 
