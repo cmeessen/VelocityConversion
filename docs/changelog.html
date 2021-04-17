@@ -102,24 +102,24 @@
 <li class="toctree-l1"><a class="reference internal" href="as_module.html">Python module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="as_terminal.html">Terminal application</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#unreleased">[Unreleased]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">[1.1.1] - 2021-04-17</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">[1.1.0] - 2019-07-16</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id3">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id4">Changed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">[1.1.0] - 2019-07-16</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Changed</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">[1.0.1] - 2017-06-22</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id6">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id7">Changed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">[1.0.1] - 2017-06-22</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Changed</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id8">[1.0.0] - 2017-05-11</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id9">Added</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">[1.0.0] - 2017-05-11</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Added</a></li>
 </ul>
 </li>
 </ul>
@@ -217,36 +217,42 @@
 <span id="id1"></span><h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
 <p>All notable changes to this project will be documented in this file.</p>
 <p>The format is based on <a class="reference external" href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>.</p>
-<div class="section" id="unreleased">
-<h2>[Unreleased]<a class="headerlink" href="#unreleased" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h2>[1.1.1] - 2021-04-17<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="added">
 <h3>Added<a class="headerlink" href="#added" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Version number is defined within <code class="docutils literal notranslate"><span class="pre">VelocityConversion/__init__.py</span></code> and is being
-read when building the documentation.</p></li>
+read when building the documentation and installing via <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p></li>
+<li><p>Added support for pipenv.</p></li>
 <li><p>The density for the simple pressure calculation can now be defined by
 declaring the variable <code class="docutils literal notranslate"><span class="pre">SimpleRho</span></code>.</p></li>
-<li><p>Function <code class="docutils literal notranslate"><span class="pre">Convert()</span></code> for convenience when using VelocityConversion as a Python
-module.</p></li>
+<li><p>Function <code class="docutils literal notranslate"><span class="pre">Convert()</span></code> for convenience when using VelocityConversion as a
+Python module.</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">UnavailableMethodError</span></code> when user want to use pressure- and
+temperature-dependent expansion coefficient (<code class="docutils literal notranslate"><span class="pre">-AlphaPT</span></code>), since this method
+is currently buggy.</p></li>
 </ul>
 </div>
 <div class="section" id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Enhanced the documentation.</p></li>
+<li><p>Use getter and setter for <code class="docutils literal notranslate"><span class="pre">UseAlpha</span></code> variable.</p></li>
 </ul>
 </div>
 <div class="section" id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Fixed a bug where the csv tables were not copied when using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.</span></code>.</p></li>
+<li><p>Fixed an issue where pressure would not be computed with the simple method.</p></li>
 </ul>
 </div>
 </div>
-<div class="section" id="id2">
-<h2>[1.1.0] - 2019-07-16<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id3">
-<h3>Added<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<h2>[1.1.0] - 2019-07-16<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h3>Added<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Python 3 support.</p></li>
 <li><p>Support for usage of VelocityConversion as a Python module.</p></li>
@@ -260,8 +266,8 @@ module.</p></li>
 <li><p>Added tests with unittest.</p></li>
 </ul>
 </div>
-<div class="section" id="id4">
-<h3>Changed<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id5">
+<h3>Changed<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>The function <code class="docutils literal notranslate"><span class="pre">CalcPT()</span></code> was improved. Instead of manually performing the
 linear interpolation value by value, it now uses numpy.interp(). This allows
@@ -273,25 +279,25 @@ more performant.</p></li>
 </ul>
 </div>
 </div>
-<div class="section" id="id5">
-<h2>[1.0.1] - 2017-06-22<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id6">
-<h3>Added<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<h2>[1.0.1] - 2017-06-22<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h3>Added<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>DOI.</p></li>
 </ul>
 </div>
-<div class="section" id="id7">
-<h3>Changed<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id8">
+<h3>Changed<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Updated README.md and code documentation.</p></li>
 </ul>
 </div>
 </div>
-<div class="section" id="id8">
-<h2>[1.0.0] - 2017-05-11<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id9">
-<h3>Added<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<h2>[1.0.0] - 2017-05-11<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id10">
+<h3>Added<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Initial release.</p></li>
 </ul>
