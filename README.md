@@ -32,8 +32,8 @@ original paper by Goes et al. (2000).
 
 If you use this code, please consider citing it as
 
-> Meeßen, Christian (2019): "VelocityConversion (Version 1.1)". Zenodo,
-> http://doi.org/10.5281/zenodo.3338157.
+> Meeßen, Christian (2019): "VelocityConversion (Version 1.1.1)". Zenodo,
+> http://doi.org/10.5281/zenodo.4698241.
 
 ## Prerequisites
 
