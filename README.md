@@ -1,6 +1,6 @@
 # VelocityConversion
 
-[![DOI](https://zenodo.org/badge/87794116.svg)](https://zenodo.org/badge/latestdoi/87794116)
+[![DOI](https://zenodo.org/badge/87794116.svg)](https://zenodo.org/badge/latestdoi/87794116) [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/cmeessen/VelocityConversion)
 
 - [VelocityConversion](#velocityconversion)
   - [Introduction](#introduction)
