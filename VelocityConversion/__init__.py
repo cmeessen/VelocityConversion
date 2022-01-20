@@ -434,8 +434,9 @@ class MantleConversion:
         file.
         """
         print('Starting temperature estimation')
-        self.Result_T = list()
-        self.Result_Rho = list()
+        interpolation_settings = dict(left=-1, right=-1)
+        self.Result_T = np.full(self.DataRaw.shape[0], np.nan)
+        self.Result_Rho = np.full(self.DataRaw.shape[0], np.nan)
 
         # use return_index to maintain order
         _, idx = np.unique(self.DataRaw[:, 2], return_index=True)
@@ -446,21 +447,26 @@ class MantleConversion:
 
         for z in unique_z:
             arr_select = self.DataRaw[:, 2] == z
-            obs_v = self.DataRaw[arr_select][:, 3]
+            observed_velocity = self.DataRaw[arr_select][:, 3]
 
-            syn_T = self.SynPTVRho[z][:, 0]
-            syn_v = self.SynPTVRho[z][:, 1]
-            syn_rho = self.SynPTVRho[z][:, 2]
+            synthetic_temperature = self.SynPTVRho[z][:, 0]
+            synthetic_velocity = self.SynPTVRho[z][:, 1]
+            synthetic_density = self.SynPTVRho[z][:, 2]
+            
+            self.Result_T[arr_select] = np.interp(
+                observed_velocity,
+                synthetic_velocity[::-1],
+                synthetic_temperature[::-1],
+                **interpolation_settings
+            )
+            self.Result_Rho[arr_select] = np.interp(
+                observed_velocity,
+                synthetic_velocity[::-1],
+                synthetic_density[::-1],
+                **interpolation_settings
+            )
 
-            ipkwds = dict(left=-1, right=-1)
-            result_T = np.interp(obs_v, syn_v[::-1], syn_T[::-1], **ipkwds)
-            result_rho = np.interp(obs_v, syn_v[::-1], syn_rho[::-1], **ipkwds)
-            self.Result_T.extend(result_T.tolist())
-            self.Result_Rho.extend(result_rho.tolist())
             j = self.ShowProgress(j, j_max)
-
-        self.Result_T = np.asarray(self.Result_T)
-        self.Result_Rho = np.asarray(self.Result_Rho)
 
         print('> Done!')
 
