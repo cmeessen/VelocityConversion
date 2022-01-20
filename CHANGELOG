@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.2] - Unreleased
+### Fixed
+- Fix issue #9 where output temperature/pressure were not in the same order as
+  the input file. This occurred if the input file was not sorted by depth.
+
 ## [1.1.1] - 2021-04-17
 ### Added
 - Version number is defined within `VelocityConversion/__init__.py` and is being
