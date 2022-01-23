@@ -26,8 +26,9 @@ import os
 import platform
 from warnings import warn
 import __main__
+from . import _version
 
-__version__ = '1.1.1'
+__version__ = _version.get_versions()['version']
 
 
 class UnavailableMethodError(Exception):
@@ -452,7 +453,7 @@ class MantleConversion:
             synthetic_temperature = self.SynPTVRho[z][:, 0]
             synthetic_velocity = self.SynPTVRho[z][:, 1]
             synthetic_density = self.SynPTVRho[z][:, 2]
-            
+
             self.Result_T[arr_select] = np.interp(
                 observed_velocity,
                 synthetic_velocity[::-1],

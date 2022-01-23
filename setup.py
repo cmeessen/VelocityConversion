@@ -2,6 +2,9 @@ from setuptools import setup
 from setuptools import find_packages
 from pkg_resources import resource_filename
 from VelocityConversion import __version__ as VERSION
+import versioneer
+
+VERSION = versioneer.get_version()
 
 
 # METADATA
