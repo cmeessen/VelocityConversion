@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Use [versioneer](https://github.com/python-versioneer/python-versioneer) to
   automatically determine version number from git tags and commits.
+- Moved the classes `MantleConversion` and `UnavailableMethodError` from
+  `__init__.py` to `MantleConversion.py`.
 
 ### Fixed
 - Fix issue #9 where output temperature/pressure were not in the same order as
