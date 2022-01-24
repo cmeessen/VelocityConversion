@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+title: VelocityConversion
+message: 'If you use this code, please consider citing it as'
+type: software
+authors:
+  - given-names: Christian
+    family-names: Meeßen
+    email: christian.meessen@gfz-potsdam.de
+    affiliation: GFZ Potsdam
+    orcid: 'https://orcid.org/0000-0001-8151-8722'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.5897455
+repository-code: 'https://github.com/cmeessen/VelocityConversion'
+license: GPL-3.0-only
+version: v1.1.2
+date-released: '2022-01-24'
