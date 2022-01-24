@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributing &mdash; VelocityConversion v.1.1.1+21.g0db4c96.dirty documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/copy_button.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/copy_button.js"></script>
+        <script src="_static/clipboard.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="Terminal application" href="as_terminal.html" />
+ 
+
+</script>
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> VelocityConversion
+          </a>
+              <div class="version">
+                v.1.1.1+21.g0db4c96.dirty
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+    
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="as_module.html">Python module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="as_terminal.html">Terminal application</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#starting-from-scratch">Starting from scratch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Use an existing clone</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-a-virtual-environment">Create a virtual environment</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#code-style">Code style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-documentation">Building documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+
+    
+        <p class="caption">
+            <span class="caption-text">
+            
+                More
+            
+            </span>
+        </p>
+        <ul>
+            
+                <li class="toctree-l1"><a href="https://github.com/cmeessen/VelocityConversion"><i class="fa fa-github fw"></i> GitHub repository</a></li>
+            
+                <li class="toctree-l1"><a href="https://github.com/cmeessen/VelocityConversion/issues/new"><i class="fa fa-bug fw"></i> Open an issue</a></li>
+            
+                <li class="toctree-l1"><a href="https://www.zenodo.org/badge/latestdoi/87794116"><i class="fa fa-quote-left fw"></i> Cite VelocityConversion</a></li>
+            
+        </ul>
+    
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">VelocityConversion</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Contributing</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/cmeessen/pyGMS/blob/master/docs/sphinxcontributing.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contributing">
+<span id="id1"></span><h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline"></a></h1>
+<p>To contribute to <code class="docutils literal notranslate"><span class="pre">VelocityConversion</span></code>, feel free to open an
+<a class="reference external" href="https://github.com/cmeessen/VelocityConversion/issues">issue</a> anytime. Of
+course, you are also welcome to open pull requests from your personal forks.</p>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline"></a></h2>
+<p>First, create your own personal fork of the repository using the fork button in
+the upper right corner of this page. If you have already cloned the repository
+from the original repository, continue at
+<a class="reference external" href="#use-an-existing-clone">Use an existing clone</a>. If you have not cloned it yet,
+continue with the next section.</p>
+<section id="starting-from-scratch">
+<h3>Starting from scratch<a class="headerlink" href="#starting-from-scratch" title="Permalink to this headline"></a></h3>
+<p>Now, clone the fork to your personal hard
+drive:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note, that the URL will differ for your repository</span>
+git clone git@github.com:cmeessen/VelocityConversion.git
+</pre></div>
+</div>
+<p>or via HTTPS:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/cmeessen/VelocityConversion.git
+</pre></div>
+</div>
+<p>and <code class="docutils literal notranslate"><span class="pre">cd</span></code> into the corresponding folder on your disk</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> VelocityConversion
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>Use an existing clone<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+<p>If you already cloned the repository, update the git remotes such that
+<code class="docutils literal notranslate"><span class="pre">git&#64;github.com:cmeessen/VelocityConversion.git</span></code> will be named <code class="docutils literal notranslate"><span class="pre">upstream</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Rename current origin to upstream</span>
+git remote rename origin upstream
+<span class="c1"># Add your own fork</span>
+git remote add origin git@github.com:YOURUSERNAME/VelocityConversion.git
+</pre></div>
+</div>
+</section>
+<section id="create-a-virtual-environment">
+<h3>Create a virtual environment<a class="headerlink" href="#create-a-virtual-environment" title="Permalink to this headline"></a></h3>
+<p>Use pipenv to create a new virtual environment</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipenv shell
+</pre></div>
+</div>
+<p>and install the dev-dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipenv shell
+pipenv install --dev
+</pre></div>
+</div>
+</section>
+</section>
+<section id="code-style">
+<h2>Code style<a class="headerlink" href="#code-style" title="Permalink to this headline"></a></h2>
+<p>The python code in this repository is checked with <code class="docutils literal notranslate"><span class="pre">pycodestyle</span></code>. Please The rules
+for <code class="docutils literal notranslate"><span class="pre">pycodestyle</span></code> are defined in <code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code>. Before creating a pull request,
+please check your code by running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pycodestyle
+</pre></div>
+</div>
+<p>If the command does not generate any output, the style is correct.</p>
+</section>
+<section id="building-documentation">
+<h2>Building documentation<a class="headerlink" href="#building-documentation" title="Permalink to this headline"></a></h2>
+<p>To build the documentation, go to the <code class="docutils literal notranslate"><span class="pre">docs/sphinx</span></code> folder,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> docs/sphinx
+</pre></div>
+</div>
+<p>and run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make html
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="as_terminal.html" class="btn btn-neutral float-left" title="Terminal application" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Christian Meeßen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

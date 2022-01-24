@@ -14,6 +14,7 @@ For a complete documentation of all functions see :py:mod:`VelocityConversion`.
     installation
     as_module
     as_terminal
+    contributing
     changelog
 
 

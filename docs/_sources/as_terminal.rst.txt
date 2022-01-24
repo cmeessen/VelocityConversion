@@ -3,16 +3,9 @@
 Terminal application
 ====================
 
-:mod:`VelocityConversion` can also be run as a module using :mod:`python -m`.
-Running it as a module allows it to be used as a terminal application. First,
-:mod:`VelocityConversion` must be installed in your python environment:
-
-.. code-block:: bash
-
-    pipenv install -e .
-
-Next, create a file named ``VelocityConversion`` (or any other name) and
-add these lines:
+:mod:`VelocityConversion` supports to be executed as module via
+``python -m``. To run it in the terminal, you can create a file named
+``VelocityConversion`` (or any other name) and add these lines:
 
 .. code-block:: bash
 
@@ -54,8 +47,8 @@ Executing the script will output
 Getting help
 ------------
 
-Simply run ``VelocityConversion -h`` to get a more extensive help directly
-within the terminal:
+Run ``VelocityConversion -h`` to get a more extensive help directly within the
+terminal:
 
 .. code-block:: none
 
@@ -128,8 +121,6 @@ within the terminal:
             value XFe = 0.0
             Example: -XFe 0.1
 
-        --version
-            Prints the currently used version.
 
 
 Defining the mineralogy
@@ -152,6 +143,6 @@ to the ones in the ``MinDB.csv``:
 Optional arguments
 ------------------
 
-The optional arguments are well explained in the termial help. Please refer to
+The optional arguments are well explained in the terminal help. Please refer to
 :ref:`optional_settings` for more information about the available pressure
-computation mehtods, expansion coefficients and attenuation parameters.
+computation methods, expansion coefficients and attenuation parameters.
