@@ -5,7 +5,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; VelocityConversion v.1.1.1+21.g0db4c96.dirty documentation</title>
+  <title>Installation &mdash; VelocityConversion v.1.1.1+24.gd7808a2.dirty documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
@@ -39,7 +39,7 @@
             <a href="index.html" class="icon icon-home"> VelocityConversion
           </a>
               <div class="version">
-                v.1.1.1+21.g0db4c96.dirty
+                v.1.1.1+24.gd7808a2.dirty
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -52,18 +52,10 @@
     
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#with-pipenv">With pipenv</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#with-pip">With pip</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#with-anaconda">With Anaconda</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-latest-version-not-on-pypi">Using the latest version not on PyPI</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#run-tests">Run tests</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#usage-as-a-python-module">Usage as a Python module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#usage-as-a-command-line-tool">Usage as a command line tool</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="as_module.html">Python module</a></li>
@@ -118,69 +110,21 @@
              
   <section id="installation">
 <span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
-<section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline"></a></h2>
-<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">VelocityConversion</span></code> requires Python 2.7 or 3, and a few modules.
-I recommend to use Python 3 and <a class="reference external" href="https://github.com/pypa/pipenv">Pipenv</a>.</p>
-<section id="with-pipenv">
-<h3>With pipenv<a class="headerlink" href="#with-pipenv" title="Permalink to this headline"></a></h3>
-<p>The advantage of pipenv is, that all dependencies and their versions are
-specified in the <code class="docutils literal notranslate"><span class="pre">Pipfile.lock</span></code>. Pipenv will create an environment where all
-necessary packages will be installed. To install dependencies with pipenv,
-navigate to the project root folder, and run</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipenv install
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">VelocityConversion</span></code> requires Python 3 and numpy. Install everything using
+<code class="docutils literal notranslate"><span class="pre">pip</span></code> by running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install numpy velocityconversion
 </pre></div>
 </div>
-<p>To install other dependencies required to compile the documentation, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipenv install --dev
-</pre></div>
-</div>
-<p>Enter the environment in the terminal by running</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipenv shell
-</pre></div>
-</div>
-</section>
-<section id="with-pip">
-<h3>With pip<a class="headerlink" href="#with-pip" title="Permalink to this headline"></a></h3>
-<p>or if you are using a Python version other than Anaconda:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install numpy
-</pre></div>
-</div>
-<p>and to be able to compile the documentation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install sphinx m2r sphinx_rtd_theme
-</pre></div>
-</div>
-</section>
-<section id="with-anaconda">
-<h3>With Anaconda<a class="headerlink" href="#with-anaconda" title="Permalink to this headline"></a></h3>
-<p>Install the required modules with Anaconda:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge numpy
-</pre></div>
-</div>
-<p>To be able to build the documentation from source, further packages are
-required:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge ipython sphinx m2r sphinx_rtd_theme
-</pre></div>
-</div>
-</section>
-</section>
-<section id="id2">
-<h2>Installation<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h2>
-<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">VelocityConversion</span></code> can be used both as a command line tool and as a
-Python module. In both cases, the first step is to create a clone or download
-the repository.</p>
+<section id="using-the-latest-version-not-on-pypi">
+<h2>Using the latest version not on PyPI<a class="headerlink" href="#using-the-latest-version-not-on-pypi" title="Permalink to this headline"></a></h2>
+<p>If you want to use the very latest version, or want to contribute, clone the
+repository to your local hard drive:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/cmeessen/VelocityConversion.git
 </pre></div>
 </div>
-<p>and install it with</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install .
-</pre></div>
-</div>
-<p>You can also use <code class="xref py py-mod docutils literal notranslate"><span class="pre">VelocityConversion</span></code> without installing it. In this case,
-you need to add the path of the <code class="docutils literal notranslate"><span class="pre">./VelocityConversion</span></code> folder to the system
-path when importing the module:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;../path/to/gitrepo&#39;</span><span class="p">)</span>
+<p>change into the <code class="docutils literal notranslate"><span class="pre">VelocityConversion</span></code> directory, and install an editable
+version:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -e .
 </pre></div>
 </div>
 <section id="run-tests">
@@ -203,27 +147,6 @@ folder and run:</p>
 </pre></div>
 </div>
 </section>
-</section>
-<section id="usage-as-a-python-module">
-<h2>Usage as a Python module<a class="headerlink" href="#usage-as-a-python-module" title="Permalink to this headline"></a></h2>
-<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">VelocityConversion</span></code> can be used as a Python module. Therefore,
-navigate to the folder that contains your clone of the repository (and
-[setup.py](./setup.py)) and execute</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -e .
-</pre></div>
-</div>
-<p>Now, the module can be imported to Python:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">VelocityConversion</span> <span class="kn">import</span> <span class="n">MantleConversion</span>
-<span class="n">MC</span> <span class="o">=</span> <span class="n">MantleConversion</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Detailed instructions on the module usage a given in <a class="reference internal" href="as_module.html#as-module"><span class="std std-ref">Python module</span></a>.</p>
-</section>
-<section id="usage-as-a-command-line-tool">
-<h2>Usage as a command line tool<a class="headerlink" href="#usage-as-a-command-line-tool" title="Permalink to this headline"></a></h2>
-<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">VelocityConversion</span></code> can also be run from the terminal. Please refer
-to <a class="reference internal" href="as_terminal.html#terminal"><span class="std std-ref">Terminal application</span></a> for more information. Using it as a terminal application
-does not require a pip installation.</p>
 </section>
 </section>
 
