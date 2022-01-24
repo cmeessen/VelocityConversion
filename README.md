@@ -4,13 +4,13 @@
 
 - [VelocityConversion](#velocityconversion)
   - [Introduction](#introduction)
-  - [Recommended citation for VelocityConversion](#recommended-citation-for-velocityconversion)
-  - [Prerequisites](#prerequisites)
-  - [How to get started](#how-to-get-started)
-    - [Usage as command line tool](#usage-as-command-line-tool)
-    - [Usage as a Python module](#usage-as-a-python-module)
+  - [Getting started](#getting-started)
+    - [Use the latest version not on PyPI](#use-the-latest-version-not-on-pypi)
+  - [Usage as command line tool](#usage-as-command-line-tool)
+  - [Usage as a Python module](#usage-as-a-python-module)
   - [Modifying physical properties of the minerals](#modifying-physical-properties-of-the-minerals)
   - [Contributing](#contributing)
+  - [Citing](#citing)
   - [References](#references)
   - [Licence](#licence)
 
@@ -29,36 +29,25 @@ and temperature dependent coefficient that was derived from Hacker and Abers
 For detailed information on the physics behind the approach have a look at the
 original paper by Goes et al. (2000).
 
-## Recommended citation for VelocityConversion
+## Getting started
 
-If you use this code, please consider citing it as
-
-> Meeßen, Christian (2019): "VelocityConversion (Version 1.1.1)". Zenodo,
-> http://doi.org/10.5281/zenodo.4698241.
-
-## Prerequisites
-
-This code requires an installation of Python 3.x and numpy.
-Building the documentation furthermore requires sphinx and m2r.
-
-You can use [`pipenv`](https://pypi.org/project/pipenv/) to create an
-environment:
+`VelocityConversion` requires Python 3 and numpy. Install `numpy` and
+`VelocityConversion` by running
 
 ```bash
-pipenv install
+pip install numpy velocityconversion
 ```
 
-ctivate the environment via
+To uninstall `VelocityConversion`, run
 
 ```bash
-pipenv shell
+pip uninstall velocityconversion
 ```
 
-## How to get started
+### Use the latest version not on PyPI
 
-The code can be used either as a command line tool or as a module within
-Python. The first step to use it, is to create a clone or download the
-repository:
+If you want to use the very latest version, or want to
+[contribute](#contributing), clone the repository to you local hard drive:
 
 ```bash
 git clone https://github.com/cmeessen/VelocityConversion.git
@@ -91,7 +80,7 @@ Ran 4 tests in 1.633s
 OK
 ```
 
-### Usage as command line tool
+## Usage as command line tool
 
 In order to use the code as command line tool, add the `./Examples` directory
 to your `PATH`, e.g. in your bash profile:
@@ -120,6 +109,7 @@ Usage: VelocityConversion FileIn -type <P|S> [optional args]
         -setQ <1|2>
         -v | -verbose
         -XFe <val>
+        --version
 ```
 
 The steps to prepare a conversion are
@@ -134,7 +124,7 @@ The steps to prepare a conversion are
 Working examples for the usage as command line tool are provided in the script
 [RunExamples.sh](./Examples/RunExamples.sh).
 
-### Usage as a Python module
+## Usage as a Python module
 
 VelocityConversion can also be imported as a Python module. Therefore, navigate
 to the folder that contains your clone of the repository (and
@@ -168,12 +158,6 @@ For a more complete documentation on how to use `VelocityConversion` as a Python
 module please visit the
 [documentation](https://cmeessen.github.io/VelocityConversion/).
 
-To uninstall `VelocityConversion`, run
-
-```bash
-pip uninstall velocityconversion
-```
-
 ## Modifying physical properties of the minerals
 
 The database that contains the physical properties of the individual mineral
@@ -186,6 +170,15 @@ that was assigned in the `phase` column of `MinDB.csv`.
 
 Please see [CONTRIBUTING.md](./CONTRIBUTING.md) if you want to contribute to
 `VelocityConversion`.
+
+## Citing
+
+If you use this code, please consider citing it as
+
+> Meeßen, Christian (2019): "VelocityConversion (v1.1.2)". Zenodo,
+> http://doi.org/10.5281/zenodo.5897455.
+
+or refer to [CITATION.cff](./CITATION.cff).
 
 ## References
 
