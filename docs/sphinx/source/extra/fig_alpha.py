@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
 import numpy as np
 
+
 def alpha(T):
     # Values for cpx in MinDB.csv
     alpha0 = 0.000053
@@ -11,7 +12,13 @@ def alpha(T):
     alpha3 = 0.672
     return alpha0 + alpha1*T + alpha2/T + alpha3/T/T
 
-d = np.loadtxt('../../../../VelocityConversion/AlphaDB.csv', delimiter=';', skiprows=3, usecols=[0,1,2])
+
+d = np.loadtxt(
+    '../../../../VelocityConversion/AlphaDB.csv',
+    delimiter=';',
+    skiprows=3,
+    usecols=[0, 1, 2]
+)
 tri = Triangulation(d[:, 1], d[:, 0])
 
 T_min = np.unique(d[:, 1].min())

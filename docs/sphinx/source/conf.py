@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from VelocityConversion import __version__
 sys.path.insert(0, os.path.abspath('../../..'))
 
 
@@ -22,7 +23,6 @@ copyright = '2019, Christian Meeßen'
 author = 'Christian Meeßen'
 
 # The full version, including alpha/beta/rc tags
-from VelocityConversion import __version__
 version = __version__
 release = version
 
@@ -94,9 +94,18 @@ html_context = {
     'github_version': 'master/docs/sphinx',
     'menu_links_name': 'More',
     'menu_links': [
-        ('<i class="fa fa-github fw"></i> GitHub repository', 'https://github.com/cmeessen/VelocityConversion'),
-        ('<i class="fa fa-bug fw"></i> Open an issue', 'https://github.com/cmeessen/VelocityConversion/issues/new'),
-        ('<i class="fa fa-quote-left fw"></i> Cite VelocityConversion', 'https://www.zenodo.org/badge/latestdoi/87794116')
+        (
+            '<i class="fa fa-github fw"></i> GitHub repository',
+            'https://github.com/cmeessen/VelocityConversion'
+        ),
+        (
+            '<i class="fa fa-bug fw"></i> Open an issue',
+            'https://github.com/cmeessen/VelocityConversion/issues/new'
+        ),
+        (
+            '<i class="fa fa-quote-left fw"></i> Cite VelocityConversion',
+            'https://www.zenodo.org/badge/latestdoi/87794116'
+        )
     ]
 }
 
@@ -105,6 +114,7 @@ napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 napoleon_use_admonition_for_examples = False
 napoleon_use_ivar = True
+
 
 # -- copybutton --------------------------------------------------------------
 def setup(app):

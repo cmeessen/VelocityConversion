@@ -6,7 +6,6 @@ import versioneer
 
 VERSION = versioneer.get_version()
 
-
 # METADATA
 NAME = 'velocityconversion-cmeessen'
 MODULE = 'VelocityConversion'
@@ -24,9 +23,9 @@ except ImportError:
         LONG_DESCRIPTION = fh.read()
 LONG_DESCRIPTION_TYPE = 'text/markdown'
 
-PACKAGES=[MODULE]
-PACKAGE_DIR={MODULE: MODULE}
-PACKAGE_DATA={MODULE: ['*.csv']}
+PACKAGES = [MODULE]
+PACKAGE_DIR = {MODULE: MODULE}
+PACKAGE_DATA = {MODULE: ['*.csv']}
 
 CLASSIFIERS = [
     'Natural Language :: English',
@@ -56,7 +55,6 @@ if __name__ == '__main__':
         long_description=LONG_DESCRIPTION,
         long_description_content_type=LONG_DESCRIPTION_TYPE,
         url=URL,
-        # packages=find_packages(),
         packages=PACKAGES,
         package_dir=PACKAGE_DIR,
         package_data=PACKAGE_DATA,

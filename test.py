@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 from VelocityConversion import MantleConversion, UnavailableMethodError
 
+
 def assemblage():
     a = {
         "ol": 0.617,
@@ -12,6 +13,7 @@ def assemblage():
         "XFe": 0.11
     }
     return a
+
 
 class TestVelocityConversion(unittest.TestCase):
 
@@ -40,7 +42,6 @@ class TestVelocityConversion(unittest.TestCase):
         MC = MantleConversion()
         with self.assertRaises(UnavailableMethodError):
             MC.SetAlpha('PT')
-
 
     def test_vp_AlphaConst(self):
         MC = MantleConversion()

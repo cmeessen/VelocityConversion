@@ -197,14 +197,15 @@ class MantleConversion:
         valid_modes = {
             'const': 'Alpha',
             'T': 'AlphaT',
-        #    'PT': 'AlphaPT'  # Deactivate due to unsolved issues
+            # 'PT': 'AlphaPT'  # Deactivate due to unsolved issues
         }
         try:
             self._UseAlpha = valid_modes[mode]
         except KeyError:
             raise UnavailableMethodError(
-                f"This method for computation of Alpha is not available: {mode}"
-        )
+                "This method for computation of Alpha is not available: "
+                f"{mode}"
+            )
 
     def AK135(self, depth, simple=False):
         """
