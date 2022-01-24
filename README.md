@@ -10,6 +10,7 @@
     - [Usage as command line tool](#usage-as-command-line-tool)
     - [Usage as a Python module](#usage-as-a-python-module)
   - [Modifying physical properties of the minerals](#modifying-physical-properties-of-the-minerals)
+  - [Contributing](#contributing)
   - [References](#references)
   - [Licence](#licence)
 
@@ -180,6 +181,11 @@ phases is stored in [MinDB.csv](./VelocityConversion/MinDB.csv).
 Mineral parameters can be edited, or new minerals added. A new mineral phase
 should then be referred to in the code or the assemblage file using the name
 that was assigned in the `phase` column of `MinDB.csv`.
+
+## Contributing
+
+Please see [CONTRIBUTING.md](./CONTRIBUTING.md) if you want to contribute to
+`VelocityConversion`.
 
 ## References
 
