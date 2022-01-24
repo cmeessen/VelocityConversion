@@ -7,7 +7,14 @@ course, you are also welcome to open pull requests from your personal forks.
 ## Getting started
 
 First, create your own personal fork of the repository using the fork button in
-the upper right corner of this page. Now, clone the fork to your personal hard
+the upper right corner of this page. If you have already cloned the repository
+from the original repository, continue at
+[Use an existing clone](#use-an-existing-clone). If you have not cloned it yet,
+continue with the next section.
+
+### Starting from scratch
+
+Now, clone the fork to your personal hard
 drive:
 
 ```bash
@@ -25,6 +32,18 @@ and `cd` into the corresponding folder on your disk
 
 ```bash
 cd VelocityConversion
+```
+
+### Use an existing clone
+
+If you already cloned the repository, update the git remotes such that
+`git@github.com:cmeessen/VelocityConversion.git` will be named `upstream`:
+
+```bash
+# Rename current origin to upstream
+git remote rename origin upstream
+# Add your own fork
+git remote add origin git@github.com:YOURUSERNAME/VelocityConversion.git
 ```
 
 ### Create a virtual environment
