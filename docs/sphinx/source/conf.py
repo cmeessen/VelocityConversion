@@ -120,5 +120,5 @@ napoleon_use_ivar = True
 def setup(app):
     """Adds copy buttons to code blocks, code location in ./_static"""
     app.add_stylesheet('copy_button.css')
-    app.add_javascript('copy_button.js')
-    app.add_javascript('clipboard.js')
+    app.add_js_file('copy_button.js')
+    app.add_js_file('clipboard.js')
