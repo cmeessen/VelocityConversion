@@ -25,6 +25,7 @@ import os
 import platform
 from warnings import warn
 import __main__
+from VelocityConversion import __version__
 
 
 class UnavailableMethodError(Exception):
@@ -730,6 +731,9 @@ class MantleConversion:
         print("        value XFe = 0.0")
         print("        Example: -XFe 0.1")
         print()
+        print("    --version")
+        print("        Prints the currently used version.")
+        print()
         print("For questions or bug reports contact")
         print("christian.meessen@gfz-potsdam.de")
         sys.exit()
@@ -913,6 +917,9 @@ class MantleConversion:
 
         if sys.argv[1] == '-h' or sys.argv[1] == '--help':
             self.ShowHelp()
+        elif sys.argv[1] == '--version':
+            print(__version__)
+            sys.exit(0)
         else:
             self.FileIn = sys.argv[1]
         n_args = len(sys.argv)
@@ -1197,5 +1204,6 @@ class MantleConversion:
         print("        -setQ <1|2>")
         print("        -v | -verbose")
         print("        -XFe <val>")
+        print("        --version")
         print()
         sys.exit()
