@@ -17,6 +17,7 @@ doc8 = "*"
 coverage = "*"
 matplotlib = "*"
 m2r2 = "*"
+pycodestyle = "*"
 
 [requires]
 python_version = "3.9"
