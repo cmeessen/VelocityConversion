@@ -3,21 +3,24 @@
 Terminal application
 ====================
 
-:mod:`VelocityConversion` can also be used as a terminal application. Just
-create a file named ``VelocityConversion`` (or any other name) and
+:mod:`VelocityConversion` can also be run as a module using :mod:`python -m`.
+Running it as a module allows it to be used as a terminal application. First,
+:mod:`VelocityConversion` must be installed in your python environment:
+
+.. code-block:: bash
+
+    pipenv install -e .
+
+Next, create a file named ``VelocityConversion`` (or any other name) and
 add these lines:
 
 .. code-block:: bash
 
     #!/bin/bash -e
 
-    # Get the directory of this script
-    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+    python -m VelocityConversion $@
 
-    python ../VelocityConversion/__init__.py $@
-
-Make sure that the path points to the correct location. The file needs to be
-executable:
+The file needs to be executable:
 
 .. code-block:: bash
 
@@ -125,6 +128,8 @@ within the terminal:
             value XFe = 0.0
             Example: -XFe 0.1
 
+        --version
+            Prints the currently used version.
 
 
 Defining the mineralogy

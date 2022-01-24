@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 ###############################################################################
-#                    Copyright (C) 2017 by Christian Meeßen                   #
+#                 Copyright (C) 2017-2022 by Christian Meeßen                 #
 #                                                                             #
 #                   This file is part of VelocityConversion                   #
 #                                                                             #
@@ -16,11 +16,15 @@
 #     You should have received a copy of the GNU General Public License       #
 #  along with VelocityConversion. If not, see <http://www.gnu.org/licenses/>. #
 ###############################################################################
+from VelocityConversion import MantleConversion
 
-from . import _version
-__version__ = _version.get_versions()['version']
+def main():
+    Instance = MantleConversion()
+    Instance.ReadArgs()
+    Instance.LoadFile()
+    Instance.FillTables()
+    Instance.CalcPT()
+    Instance.SaveFile()
 
-from .MantleConversion import (
-    MantleConversion,
-    UnavailableMethodError
-)
+if __name__ == "__main__":
+    main()
