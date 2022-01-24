@@ -171,7 +171,7 @@ module please visit the
 To uninstall `VelocityConversion`, run
 
 ```bash
-pip uninstall velocityconversion-cmeessen
+pip uninstall velocityconversion
 ```
 
 ## Modifying physical properties of the minerals

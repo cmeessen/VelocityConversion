@@ -7,12 +7,10 @@ import versioneer
 VERSION = versioneer.get_version()
 
 # METADATA
-NAME = 'velocityconversion-cmeessen'
+NAME = 'velocityconversion'
 MODULE = 'VelocityConversion'
 AUTHOR = 'Christian Meeßen'
 AUTHOR_EMAIL = 'christian.meessen@gfz-potsdam.de'
-MAINTAINER = 'Christian Meeßen'
-MAINTAINER_EMAIL = 'christian.meessen@gfz-potsdam.de'
 URL = 'https://github.com/cmeessen/VelocityConversion'
 DESCRIPTION = 'Conversion of seismic velocities to temperature and density'
 try:
@@ -29,13 +27,14 @@ PACKAGE_DATA = {MODULE: ['*.csv']}
 
 CLASSIFIERS = [
     'Natural Language :: English',
-    'Programming Language :: Python :: 2'
     'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.7',
-    'License :: OSI Approved :: GNU GPL-3.0',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     'Operating System :: OS Independent',
-    'Topic :: Geophysics',
+    'Topic :: Scientific/Engineering :: Physics',
 ]
 
 # DEPENDENCIES
@@ -49,8 +48,6 @@ if __name__ == '__main__':
         version=VERSION,
         author=AUTHOR,
         author_email=AUTHOR_EMAIL,
-        maintainer=MAINTAINER,
-        maintainer_email=MAINTAINER_EMAIL,
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         long_description_content_type=LONG_DESCRIPTION_TYPE,

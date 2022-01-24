@@ -1,6 +1,9 @@
 *.pyc
 velocityconversion_cmeessen.egg-info
+velocityconversion.egg-info
 .vscode
 docs/sphinx/build
 docs/sphinx/fileout.dat
 Examples/VsSL2013_*.dat
+build
+dist
