@@ -1,6 +1,6 @@
 # VelocityConversion
 
-[![DOI](https://zenodo.org/badge/87794116.svg)](https://zenodo.org/badge/latestdoi/87794116)
+[![DOI](https://zenodo.org/badge/87794116.svg)](https://zenodo.org/badge/latestdoi/87794116) [![PyPI version](https://badge.fury.io/py/velocityconversion.svg)](https://badge.fury.io/py/velocityconversion)
 
 - [VelocityConversion](#velocityconversion)
   - [Introduction](#introduction)
