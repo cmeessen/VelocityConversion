@@ -3,21 +3,17 @@
 Terminal application
 ====================
 
-:mod:`VelocityConversion` can also be used as a terminal application. Just
-create a file named ``VelocityConversion`` (or any other name) and
-add these lines:
+:mod:`VelocityConversion` supports to be executed as module via
+``python -m``. To run it in the terminal, you can create a file named
+``VelocityConversion`` (or any other name) and add these lines:
 
 .. code-block:: bash
 
     #!/bin/bash -e
 
-    # Get the directory of this script
-    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+    python -m VelocityConversion $@
 
-    python ../VelocityConversion/__init__.py $@
-
-Make sure that the path points to the correct location. The file needs to be
-executable:
+The file needs to be executable:
 
 .. code-block:: bash
 
@@ -46,12 +42,13 @@ Executing the script will output
             -setQ <1|2>
             -v | -verbose
             -XFe <val>
+            --version
 
 Getting help
 ------------
 
-Simply run ``VelocityConversion -h`` to get a more extensive help directly
-within the terminal:
+Run ``VelocityConversion -h`` to get a more extensive help directly within the
+terminal:
 
 .. code-block:: none
 
@@ -146,6 +143,6 @@ to the ones in the ``MinDB.csv``:
 Optional arguments
 ------------------
 
-The optional arguments are well explained in the termial help. Please refer to
+The optional arguments are well explained in the terminal help. Please refer to
 :ref:`optional_settings` for more information about the available pressure
-computation mehtods, expansion coefficients and attenuation parameters.
+computation methods, expansion coefficients and attenuation parameters.

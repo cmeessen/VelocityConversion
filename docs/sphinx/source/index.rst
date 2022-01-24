@@ -20,7 +20,7 @@ For a complete documentation of all functions see :py:mod:`VelocityConversion`.
 GitHub repository
 =================
 
-:mod:`VelocityConversion` is hostet on Github:
+:mod:`VelocityConversion` is hosted on Github:
 
 `https://github.com/cmeessen/VelocityConversion <https://github.com/cmeessen/VelocityConversion>`_
 
